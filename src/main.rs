@@ -7,62 +7,13 @@ use isahc::prelude::*;
 use std::process::{Command, ExitStatus};
 use std::io::Result;
 fn main() {
-    let mut search_path = String::new();
-    println!("What ln do you want to read?");
-    std::io::stdin().read_line(&mut search_path).expect("Failed to read line");
-    let search_path = search_path.replace(" ", "+");
-    let url = "https://readlightnovels.net/?s=".to_string();
-    let url = format!("{}{}", url, search_path.trim()).trim().to_string();
-    let html = get_html(&url).trim().to_string();
-    let ln_list = get_ln_list(&html);
-    //remove first element of ln_list
-    let ln_list = ln_list.iter().skip(1).map(|x| x.to_string()).collect::<Vec<String>>();
-    let ln_titles = get_ln_titles(&ln_list);
-    let ln_urls = get_ln_urls(&ln_list);
-    let mut count = 0;
-    for ln in ln_titles {
-        if count % 2 == 0 {
-            println!("({})\t{}",count, format!("{}", ln.blue()));
-        } else {
-            println!("({})\t{}",count, format!("{}", ln.yellow()));
-        }
-        count += 1;
+    let mut exit_status = 0;
+    while exit_status == 0 {
+
     }
-    println!("Which ln do you want to read?");
-    let mut ln_number = String::new();
-    std::io::stdin().read_line(&mut ln_number).expect("Failed to read line");
-    let ln_number = ln_number.trim().to_string();
-    let ln_number = ln_number.parse::<usize>().unwrap();
-    let ln_url = &ln_urls[ln_number];
-    let ln_url = ln_url.trim().to_string();
-    let ln_html = get_html(&ln_url);
-    let ln_id = get_ln_id(&ln_html);
-    let ln_last_page = get_ln_last_page(&ln_html);
-    let ln_page_html = page_selector(&ln_last_page, &ln_id);
-    let ln_chapters = get_ln_chapters(&ln_page_html);
-    let ln_chapters_urls = get_ln_chapters_urls(&ln_page_html);
-    count = 0;
-    for chaprer in ln_chapters {
-        if count % 2 == 0 {
-            println!("({})\t{}",count, format!("{}", chaprer.blue()));
-        } else {
-            println!("({})\t{}",count, format!("{}", chaprer.yellow()));
-        }
-        count += 1;
-    }
-    println!("Which chapter do you want to read?");
-    let mut chaprer_number = String::new();
-    std::io::stdin().read_line(&mut chaprer_number).expect("Failed to read line");
-    let chaprer_number = chaprer_number.trim().to_string();
-    let chaprer_number = chaprer_number.parse::<usize>().unwrap();
-    let chaprer_url = &ln_chapters_urls[chaprer_number];
-    let chaprer_url = chaprer_url.trim().to_string();
-    let ln_text = get_ln_text(&chaprer_url);
-    let mut full_text: String = String::new();
-    for line in ln_text {
-        let text = format!("{}\n\n", line);
-        full_text.push_str(&text);
-    }
+    let ln_url = search_ln();
+    let chapter_url = chapter_selector(&ln_url);
+    let full_text = get_full_text(&chapter_url);
     //write full_text to file called temp.txt
     let mut file = File::create("/tmp/log_e").expect("Unable to create file");
     file.write_all(full_text.as_bytes()).expect("Unable to write to file");
@@ -70,7 +21,101 @@ fn main() {
     file.sync_all().expect("Unable to sync file");
     //open temp.txt in cat for user to read
     let _com = open_bat();
+}
 
+fn search_ln()->String{
+    let mut _is_n = false;
+    while _is_n == false{
+        let mut search_path = String::new();
+        println!("What ln do you want to read?");
+        std::io::stdin().read_line(&mut search_path).expect("Failed to read line");
+        let search_path = search_path.replace(" ", "+");
+        let url = "https://readlightnovels.net/?s=".to_string();
+        let url = format!("{}{}", url, search_path.trim()).trim().to_string();
+        let html = get_html(&url).trim().to_string();
+        let ln_list = get_ln_list(&html);
+        //remove first element of ln_list
+        let ln_list = ln_list.iter().skip(1).map(|x| x.to_string()).collect::<Vec<String>>();
+        let ln_titles = get_ln_titles(&ln_list);
+        let ln_urls = get_ln_urls(&ln_list);
+        let mut count = 0;
+        for ln in ln_titles {
+            if count % 2 == 0 {
+                println!("({})\t{}",count, format!("{}", ln.blue()));
+            } else {
+                println!("({})\t{}",count, format!("{}", ln.yellow()));
+            }
+            count += 1;
+        }
+        println!("(n)\t{}","Search another title".red());
+        let mut ln_number = String::new();
+        std::io::stdin().read_line(&mut ln_number).expect("Failed to read line");
+        ln_number = ln_number.trim().to_string();
+        if ln_number != "n" {
+            let ln_number = ln_number.trim().to_string();
+            let ln_number = ln_number.parse::<usize>().unwrap();
+            let ln_url = &ln_urls[ln_number];
+            let ln_url = ln_url.trim().to_string();
+            _is_n = true;
+            return ln_url;
+        }
+        print!("\x1B[2J\x1B[1;1H");
+    }
+    return "".to_string();
+}
+
+fn chapter_selector(ln_url: &String)->String{
+    let exit = false;
+    let mut selected_chapter = 1;
+    while exit == false{
+        let ln_html = get_html(&ln_url);
+        let ln_id = get_ln_id(&ln_html);
+        let ln_last_page = get_ln_last_page(&ln_html);
+        let ln_page_html = page_selector(&ln_id,selected_chapter);
+        let ln_chapters = get_ln_chapters(&ln_page_html);
+        let ln_chapters_urls = get_ln_chapters_urls(&ln_page_html);
+        let mut count = 0;
+        for chaprer in ln_chapters {
+            if count % 2 == 0 {
+                println!("({})\t{}",count, format!("{}", chaprer.blue()));
+            } else {
+                println!("({})\t{}",count, format!("{}", chaprer.yellow()));
+            }
+            count += 1;
+        }
+        println!("(n)\t{}","Go to next page".red());
+        println!("(b)\t{}","Go to previous page".red());
+        println!("Which chapter do you want to read?");
+        let mut chapter_number = String::new();
+        std::io::stdin().read_line(&mut chapter_number).expect("Failed to read line");
+        chapter_number = chapter_number.trim().to_string();
+        if chapter_number == "n" && selected_chapter < ln_last_page.parse::<u32>().unwrap() {
+            selected_chapter += 1;
+            print!("\x1B[2J\x1B[1;1H");
+        }
+        else if chapter_number == "b" && selected_chapter > 1{
+            selected_chapter -= 1;
+            print!("\x1B[2J\x1B[1;1H");
+        }
+        else{
+            let chaprer_number = chapter_number.trim().to_string();
+            let chaprer_number = chaprer_number.parse::<usize>().unwrap();
+            let chaprer_url = &ln_chapters_urls[chaprer_number];
+            let chaprer_url = chaprer_url.trim().to_string();
+            return chaprer_url;
+        }
+    }
+    return "".to_string();
+}
+
+fn get_full_text(chapter_url: &String)->String{
+    let ln_text = get_ln_text(&chapter_url);
+    let mut full_text: String = String::new();
+    for line in ln_text {
+        let text = format!("{}\n\n", line);
+        full_text.push_str(&text);
+    }
+    full_text
 }
 
 pub fn open_bat() -> Result<ExitStatus> {
@@ -236,19 +281,9 @@ fn get_ln_next_page(ln_id: &str, page: &str) -> String {
     html
 }
 
-fn page_selector(max_page: &str, ln_id: &str) -> String {
-    println!("Please select a page go to");
-    println!("1..{}", max_page);
-    let mut page_select = String::new();
-    std::io::stdin().read_line(&mut page_select).unwrap();
-    let page_select: u32 = page_select.trim().parse().unwrap();
-    while page_select > max_page.parse::<u32>().unwrap() {
-        println!("Please select a page go to");
-        println!("1..{}", max_page);
-        let mut page_select = String::new();
-        std::io::stdin().read_line(&mut page_select).unwrap();
-    }
-    get_ln_next_page(&ln_id, &page_select.to_string())
+fn page_selector(ln_id: &str,selected_page: u32) -> String {
+
+    get_ln_next_page(&ln_id, &selected_page.to_string())
 }
 
 fn get_ln_text(chapter_url: &str) -> Vec<String> {
