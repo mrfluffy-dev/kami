@@ -7,10 +7,6 @@ use isahc::prelude::*;
 use std::process::{Command, ExitStatus};
 use std::io::Result;
 fn main() {
-    let mut exit_status = 0;
-    while exit_status == 0 {
-
-    }
     let ln_url = search_ln();
     let chapter_url = chapter_selector(&ln_url);
     let full_text = get_full_text(&chapter_url);
