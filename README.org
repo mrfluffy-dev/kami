@@ -1,0 +1,12 @@
+#+title: Readme
+
+* Install
+1. #+begin_src shell
+   git clone https://github.com/mrfluffy-dev/log_e.git && cd log_e
+   #+end_src
+2. #+begin_src shell
+   cargo build --release
+   #+end_src
+3. #+begin_src shell
+   cp target/release/log_e /usr/bin/log_e
+   #+end_src
