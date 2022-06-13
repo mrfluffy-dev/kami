@@ -10,6 +10,7 @@ fn main() {
     let ln_url = search_ln();
     let mut selected_page = 1;
     loop {
+        //make empty tuple called chapter_url with (String, u32, u32)
         let chapter_url = chapter_selector(&ln_url, selected_page);
         selected_page = chapter_url.1;
         let full_text = get_full_text(&chapter_url.0);
@@ -87,6 +88,7 @@ fn chapter_selector(ln_url: &String, mut selected_page: u32)->(String, u32){
         }
         println!("(n)\t{}","Go to next page".red());
         println!("(b)\t{}","Go to previous page".red());
+        println!("(q)\t{}","go back to main menu".red());
         println!("Which chapter do you want to read?");
         let mut chapter_number = String::new();
         std::io::stdin().read_line(&mut chapter_number).expect("Failed to read line");
@@ -99,13 +101,15 @@ fn chapter_selector(ln_url: &String, mut selected_page: u32)->(String, u32){
             selected_page -= 1;
             print!("\x1B[2J\x1B[1;1H");
         }
+        else if chapter_number == "q"{
+            main();
+        }
         else{
             let chaprer_number = chapter_number.trim().to_string();
             let chaprer_number = chaprer_number.parse::<usize>().unwrap();
             let chaprer_url = &ln_chapters_urls[chaprer_number];
             let chaprer_url = chaprer_url.trim().to_string();
-            return (chaprer_url, selected_page);
-        }
+            return (chaprer_url, selected_page);        }
     }
     return ("".to_string(),1);
 }
