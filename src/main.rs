@@ -8,15 +8,20 @@ use std::process::{Command, ExitStatus};
 use std::io::Result;
 fn main() {
     let ln_url = search_ln();
-    let chapter_url = chapter_selector(&ln_url);
-    let full_text = get_full_text(&chapter_url);
-    //write full_text to file called temp.txt
-    let mut file = File::create("/tmp/log_e").expect("Unable to create file");
-    file.write_all(full_text.as_bytes()).expect("Unable to write to file");
-    //close file
-    file.sync_all().expect("Unable to sync file");
-    //open temp.txt in cat for user to read
-    let _com = open_bat();
+    let mut selected_page = 1;
+    loop {
+        let chapter_url = chapter_selector(&ln_url, selected_page);
+        selected_page = chapter_url.1;
+        let full_text = get_full_text(&chapter_url.0);
+        //write full_text to file called temp.txt
+        let mut file = File::create("/tmp/log_e").expect("Unable to create file");
+        file.write_all(full_text.as_bytes()).expect("Unable to write to file");
+        //close file
+        file.sync_all().expect("Unable to sync file");
+        //open temp.txt in cat for user to read
+        let _com = open_bat();
+        print!("\x1B[2J\x1B[1;1H");
+    }
 }
 
 fn search_ln()->String{
@@ -60,14 +65,13 @@ fn search_ln()->String{
     return "".to_string();
 }
 
-fn chapter_selector(ln_url: &String)->String{
+fn chapter_selector(ln_url: &String, mut selected_page: u32)->(String, u32){
     let exit = false;
-    let mut selected_chapter = 1;
     while exit == false{
         let ln_html = get_html(&ln_url);
         let ln_id = get_ln_id(&ln_html);
         let ln_last_page = get_ln_last_page(&ln_html);
-        let ln_page_html = page_selector(&ln_id,selected_chapter);
+        let ln_page_html = page_selector(&ln_id,selected_page);
         let ln_chapters = get_ln_chapters(&ln_page_html);
         let ln_chapters_urls = get_ln_chapters_urls(&ln_page_html);
         let mut count = 0;
@@ -85,12 +89,12 @@ fn chapter_selector(ln_url: &String)->String{
         let mut chapter_number = String::new();
         std::io::stdin().read_line(&mut chapter_number).expect("Failed to read line");
         chapter_number = chapter_number.trim().to_string();
-        if chapter_number == "n" && selected_chapter < ln_last_page.parse::<u32>().unwrap() {
-            selected_chapter += 1;
+        if chapter_number == "n" && selected_page < ln_last_page.parse::<u32>().unwrap() {
+            selected_page += 1;
             print!("\x1B[2J\x1B[1;1H");
         }
-        else if chapter_number == "b" && selected_chapter > 1{
-            selected_chapter -= 1;
+        else if chapter_number == "b" && selected_page > 1{
+            selected_page -= 1;
             print!("\x1B[2J\x1B[1;1H");
         }
         else{
@@ -98,10 +102,10 @@ fn chapter_selector(ln_url: &String)->String{
             let chaprer_number = chaprer_number.parse::<usize>().unwrap();
             let chaprer_url = &ln_chapters_urls[chaprer_number];
             let chaprer_url = chaprer_url.trim().to_string();
-            return chaprer_url;
+            return (chaprer_url, selected_page);
         }
     }
-    return "".to_string();
+    return ("".to_string(),1);
 }
 
 fn get_full_text(chapter_url: &String)->String{
