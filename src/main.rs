@@ -26,6 +26,7 @@ fn main() {
 
 fn search_ln()->String{
     let mut _is_n = false;
+    print!("\x1B[2J\x1B[1;1H");
     while _is_n == false{
         let mut search_path = String::new();
         println!("What ln do you want to read?");
@@ -58,6 +59,7 @@ fn search_ln()->String{
             let ln_url = &ln_urls[ln_number];
             let ln_url = ln_url.trim().to_string();
             _is_n = true;
+            print!("\x1B[2J\x1B[1;1H");
             return ln_url;
         }
         print!("\x1B[2J\x1B[1;1H");
@@ -119,7 +121,7 @@ fn get_full_text(chapter_url: &String)->String{
 }
 
 pub fn open_bat() -> Result<ExitStatus> {
-    Command::new("bat").arg("-p").arg("/tmp/log_e").spawn()?.wait()
+    Command::new("bat").arg("-p").arg("--paging").arg("always").arg("/tmp/log_e").spawn()?.wait()
 }
 
 //gets the full html of the page
