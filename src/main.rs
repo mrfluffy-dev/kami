@@ -121,7 +121,7 @@ fn get_full_text(chapter_url: &String)->String{
 }
 
 pub fn open_bat() -> Result<ExitStatus> {
-    Command::new("bat").arg("-p").arg("--paging").arg("always").arg("/tmp/log_e").spawn()?.wait()
+    Command::new("bat").arg("--paging").arg("always").arg("/tmp/log_e").spawn()?.wait()
 }
 
 //gets the full html of the page
