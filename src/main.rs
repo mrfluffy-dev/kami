@@ -12,8 +12,9 @@ fn main() {
     if std::env::args().len() > 1 {
         _arg = std::env::args().nth(1).unwrap();
     } else {
-        println!("argument a\t:anime");
-        println!("argument l\t:light novel");
+        println!("anime:\t\t{}",format!("{}","a".red()));
+        println!("light novel:\t{}",format!("{}","l".red()));
+        println!("you can add the name of the anime you want to watch after the {} argument",format!("{}","a".red()));
         //kill the program
         std::process::exit(0);
     }
