@@ -3,28 +3,83 @@ use std::vec::Vec;
 use std::fs::File;
 use std::io::prelude::*;
 use colored::Colorize;
-use isahc::prelude::*;
+use isahc::{prelude::*,Request};
 use std::process::{Command, ExitStatus};
 use std::io::Result;
+use base64::{encode, decode};
 fn main() {
-    let ln_url = search_ln();
-    let mut selected_page = 1;
-    loop {
-        //make empty tuple called chapter_url with (String, u32, u32)
-        let chapter_url = chapter_selector(&ln_url, selected_page);
-        selected_page = chapter_url.1;
-        let full_text = get_full_text(&chapter_url.0);
-        //write full_text to file called temp.txt
-        let mut file = File::create("/tmp/log_e").expect("Unable to create file");
-        file.write_all(full_text.as_bytes()).expect("Unable to write to file");
-        //close file
-        file.sync_all().expect("Unable to sync file");
-        //open temp.txt in cat for user to read
-        let _com = open_bat();
+    let mut _arg = String::new();
+    if std::env::args().len() > 1 {
+        _arg = std::env::args().nth(1).unwrap();
+    } else {
+        println!("argument a\t:anime");
+        println!("argument l\t:light novel");
+        //kill the program
+        std::process::exit(0);
+    }
+    if _arg == "l"{
+        let ln_url = search_ln();
+        let mut selected_page = 1;
+        loop {
+            //make empty tuple called chapter_url with (String, u32, u32)
+            let chapter_url = chapter_selector(&ln_url, selected_page);
+            selected_page = chapter_url.1;
+            let full_text = get_full_text(&chapter_url.0);
+            //write full_text to file called temp.txt
+            let mut file = File::create("/tmp/log_e").expect("Unable to create file");
+            file.write_all(full_text.as_bytes()).expect("Unable to write to file");
+            //close file
+            file.sync_all().expect("Unable to sync file");
+            //open temp.txt in cat for user to read
+            let _com = open_bat();
+            print!("\x1B[2J\x1B[1;1H");
+        }
+    }
+    else if _arg == "a" {
+        let mut query = String::new();
+        if std::env::args().len() > 2 {
+            query = std::env::args().nth(1).unwrap();
+        } else {
+            print!("\x1B[2J\x1B[1;1H");
+            println!("Enter query: ");
+            std::io::stdin().read_line(&mut query).unwrap();
+            query = query.trim().to_string();
+        }
+        let anime_list = anime_names(&query);
+        let mut count = 0;
         print!("\x1B[2J\x1B[1;1H");
+        for anime in &anime_list{
+            if count % 2 == 0 {
+                println!("({})\t{}",format!("{}",count.to_string().blue()), format!("{}", anime.blue()));
+            } else {
+                println!("({})\t{}",format!("{}",count.to_string().yellow()), format!("{}", anime.yellow()));
+            }
+            count += 1;
+        }
+        println!("Enter anime number: ");
+        let mut anime_num = String::new();
+        std::io::stdin().read_line(&mut anime_num).expect("Failed to read line");
+
+        // convert anime_num to u16
+        let anime_num = anime_num.trim().to_string();
+        let anime_num = anime_num.parse::<usize>().unwrap();
+
+        //let num: u16 = anime_num.parse().unwrap();
+        let title = &anime_list[anime_num];
+        let ep_range = anime_ep_range(&title);
+        println!("select episode 0-{}: ",ep_range);
+        let mut ep_num = String::new();
+        std::io::stdin().read_line(&mut ep_num).expect("Failed to read line");
+        let ep_num = ep_num.trim().to_string();
+        let ep_num = ep_num.trim().parse::<u16>().unwrap();
+        let command = anime_link(&title,ep_num);
+        open_mp3(command);
+    }
+    else {
+        println!("Invalid argument");
     }
 }
-
+// light novel stuff
 fn search_ln()->String{
     let mut _is_n = false;
     print!("\x1B[2J\x1B[1;1H");
@@ -109,7 +164,8 @@ fn chapter_selector(ln_url: &String, mut selected_page: u32)->(String, u32){
             let chaprer_number = chaprer_number.parse::<usize>().unwrap();
             let chaprer_url = &ln_chapters_urls[chaprer_number];
             let chaprer_url = chaprer_url.trim().to_string();
-            return (chaprer_url, selected_page);        }
+            return (chaprer_url, selected_page);
+        }
     }
     return ("".to_string(),1);
 }
@@ -130,9 +186,14 @@ pub fn open_bat() -> Result<ExitStatus> {
 
 //gets the full html of the page
 fn get_html(url: &str) -> String {
-    let mut resp = isahc::get(url).unwrap();
-    let html = resp.text().unwrap();
+    let req = Request::builder()
+        .uri(url)
+        .header("user-agent","Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0")
+        .body(())
+        .unwrap();
+    let html = req.send().unwrap().text().unwrap();
     html
+
 }
 //gets the list of ln's from the html and returns it as a vector of the ln's name and href
 fn get_ln_list(html: &str) -> Vec<String> {
@@ -282,8 +343,14 @@ fn get_ln_id(html: &str) -> String {
 fn get_ln_next_page(ln_id: &str, page: &str) -> String {
     let url = "https://readlightnovels.net/wp-admin/admin-ajax.php".to_string();
     let form = format!("action=tw_ajax&type=pagination&id={}.html&page={}", ln_id, page);
-    let mut resp = isahc::post(url,form).unwrap();
-    let html = resp.text().unwrap();
+    //let mut resp = isahc::post(&url,form).unwrap();
+    let req = Request::builder()
+        .method("POST")
+        .uri(url)
+        .header("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0")
+        .body(form)
+        .unwrap();
+    let html = req.send().unwrap().text().unwrap();
     html
 }
 
@@ -304,4 +371,80 @@ fn get_ln_text(chapter_url: &str) -> Vec<String> {
     ln_text.truncate(ln_text.len() - 3);
     let ln_text = fix_html_encoding(&ln_text);
     ln_text
+}
+
+
+
+
+//anime stuff
+
+
+fn anime_names(query: &str) -> Vec<String> {
+    let url = format!("https://gogoanime.lu//search.html?keyword={}",query);
+    //relpace all spaces with %20
+    let url = url.replace(" ","%20");
+    let html = get_anime_html(&url);
+    let re = Regex::new(r#"(?m)/category/([^"]*)"#).unwrap();
+    let mut anime_list:Vec<String> = Vec::new();
+    for cap in re.captures_iter(&html) {
+        anime_list.push(cap.get(1).unwrap().as_str().trim().to_string());
+    }
+    anime_list.dedup();
+
+    anime_list
+}
+
+fn anime_ep_range(anime_name: &str) -> u16{
+    let url = format!("https://gogoanime.lu/category/{}",anime_name);
+    let re = Regex::new(r#"(?m)\s<a href="\#" class="active" ep_start = (.*?)</a>"#).unwrap();
+    let episodes = re.captures_iter(&get_anime_html(&url)).next().unwrap().get(1).unwrap().as_str().trim().to_string();
+        episodes.split("-").nth(1).unwrap_or("0").parse::<u16>().unwrap_or(0)
+}
+
+fn anime_link(title: &str, ep: u16) -> (String,String) {
+    let url = format!("https://animixplay.to/v1/{}",title);
+    let html = get_anime_html(&url);
+    let re = Regex::new(r#"(?m)\?id=([^&]+)"#).unwrap();
+    let id1 = re.captures_iter(&html).nth(ep as usize - 1).unwrap().get(1).unwrap().as_str().trim().to_string();
+    let title = format!("{} episode {}",title.replace("-"," "),ep);
+    let encoded_id1 = encode(&id1);
+    let anime_id = encode(format!("{}LTXs3GrU8we9O{}",id1,encoded_id1));
+    let html = format!("https://animixplay.to/api/live{}",anime_id);
+    let url = get_ep_location(&html);
+    let url = url.split("#").nth(1).unwrap();
+    let url = format!("{}",std::str::from_utf8(&decode(url).unwrap()).unwrap());
+    (url,title)
+}
+
+
+
+fn get_anime_html(url: &str) -> String {
+    let req = Request::builder()
+        .uri(url)
+        .header("user-agent","Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0")
+        .body(())
+        .unwrap();
+    let html = req.send().unwrap().text().unwrap();
+    html
+}
+fn get_ep_location(url: &str) -> String {
+    let request = Request::builder()
+    .method("HEAD")
+    .uri(url)
+    .header("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0")
+    .body(())
+    .unwrap();
+    let response = request.send().unwrap();
+    let headers = response.headers();
+    let location = headers.get("location").unwrap();
+    location.to_str().unwrap().to_string()
+}
+
+
+#[allow(unused)]
+pub fn open_mp3(command: (String,String)) {
+    Command::new("mpv")
+        .arg(command.0)
+        .arg(command.1)
+        .spawn();
 }
