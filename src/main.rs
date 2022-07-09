@@ -38,7 +38,7 @@ fn main() {
     else if _arg == "a" {
         let mut query = String::new();
         if std::env::args().len() > 2 {
-            query = std::env::args().nth(1).unwrap();
+            query = std::env::args().nth(2).unwrap();
         } else {
             print!("\x1B[2J\x1B[1;1H");
             println!("Enter query: ");
