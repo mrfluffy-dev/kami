@@ -26,12 +26,12 @@ pub fn int_input(prompt: &str) -> usize {
     }
 }
 
-pub fn u16_input(prompt: &str) -> u16 {
-    print!("{}", prompt);
-    let mut input = String::new();
-    let _ = io::stdout().flush();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Error reading from STDIN");
-    input.trim().parse::<u16>().unwrap()
-}
+//pub fn u16_input(prompt: &str) -> u16 {
+//    print!("{}", prompt);
+//    let mut input = String::new();
+//    let _ = io::stdout().flush();
+//    io::stdin()
+//        .read_line(&mut input)
+//        .expect("Error reading from STDIN");
+//    input.trim().parse::<u16>().unwrap()
+//}
