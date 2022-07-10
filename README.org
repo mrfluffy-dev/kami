@@ -3,7 +3,7 @@
 * Install
 1.
 #+begin_src shell
-   git clone https://github.com/mrfluffy-dev/log_e.git && cd log_e
+   git clone https://github.com/mrfluffy-dev/kami.git && cd kami
 #+end_src
 2.
 #+begin_src shell
@@ -11,5 +11,5 @@
 #+end_src
 3.
 #+begin_src shell
-   cp target/release/log_e /usr/bin/log_e
+   cp target/release/kami /usr/bin/kami
 #+end_src
