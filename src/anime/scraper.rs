@@ -66,7 +66,7 @@ pub fn anime_ep_range(anime_name: &str) -> u16 {
         .unwrap_or(0)
 }
 
-pub fn anime_link(title: &str, ep: u16) -> (String, String) {
+pub fn anime_link(title: &str, ep: u64) -> (String, String) {
     let url = format!("https://animixplay.to/v1/{}", title);
     let html = get_anime_html(&url);
     let re = Regex::new(r#"(?m)\?id=([^&]+)"#).unwrap();

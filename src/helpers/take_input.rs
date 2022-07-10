@@ -17,7 +17,13 @@ pub fn int_input(prompt: &str) -> usize {
     io::stdin()
         .read_line(&mut input)
         .expect("Error reading from STDIN");
-    input.trim().parse::<usize>().unwrap()
+    //try to parse the input as usize else return max usize
+    match input.trim().parse::<usize>() {
+        Ok(i) => i,
+        Err(_) => {
+            usize::max_value()
+        }
+    }
 }
 
 pub fn u16_input(prompt: &str) -> u16 {
