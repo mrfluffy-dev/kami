@@ -8,7 +8,7 @@ pub fn anime_stream(first_run: bool) {
     let query = if std::env::args().len() > 2 && first_run {
         std::env::args().nth(2).unwrap()
     } else {
-        string_input("Enter query: ")
+        string_input("Search anime: ")
     };
     let anime_list = anime_names(&query);
     let mut count = 0;
