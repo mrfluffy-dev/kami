@@ -1,5 +1,9 @@
 #+title: Readme
 
+* Dependancies
+1. bat
+2. mpv
+
 * Install
 1.
 #+begin_src shell
