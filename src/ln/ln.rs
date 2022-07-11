@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use crate::{search_ln,chapter_selector,get_full_text,open_bat};
-pub fn ln(){
+pub fn ln_read(){
     let ln_url = search_ln();
     let mut selected_page = 1;
     loop {

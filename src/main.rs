@@ -1,12 +1,12 @@
 use crate::anime::anime::anime_stream;
 use crate::anime::scraper::{anime_ep_range, anime_link, anime_names};
-use crate::ln::ln::ln;
+use crate::ln::ln::ln_read;
 use crate::ln::menu::chapter_selector;
 use crate::ln::open_text::open_bat;
 use crate::ln::scraper::get_full_text;
 use crate::{
     anime::player::open_video,
-    helpers::take_input::{int_input, string_input, u16_input},
+    helpers::take_input::{int_input, string_input},
     ln::search::search_ln,
 };
 use colored::Colorize;
@@ -30,7 +30,7 @@ fn main() {
         std::process::exit(0);
     }
     if _arg == "l" {
-        ln();
+        ln_read();
     } else if _arg == "a" {
         anime_stream()
     } else {

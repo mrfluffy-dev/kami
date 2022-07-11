@@ -11,8 +11,7 @@ use crate::{
 };
 
 pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
-    let exit = false;
-    while exit == false {
+    loop {
         let ln_html = ln::scraper::get_html(ln_url);
         let ln_id = get_ln_id(&ln_html);
         let ln_last_page = get_ln_last_page(&ln_html);
@@ -42,11 +41,17 @@ pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
             main();
         } else {
             let chapter_number = chapter_number.trim().to_string();
-            let chapter_number = chapter_number.parse::<usize>().unwrap();
-            let chapter_url = &ln_chapters_urls[chapter_number];
+            let mut chapter_number_int = 0;
+            if chapter_number.parse::<u32>().is_ok() {
+                chapter_number_int = chapter_number.parse::<u32>().unwrap();
+            } else {
+                println!("{}", "Invalid chapter number".red());
+                continue;
+            }
+            //let chapter_number = chapter_number.parse::<usize>().unwrap();
+            let chapter_url = &ln_chapters_urls[chapter_number_int as usize];
             let chapter_url = chapter_url.trim().to_string();
             return (chapter_url, selected_page);
         }
     }
-    ("".to_string(), 1)
 }

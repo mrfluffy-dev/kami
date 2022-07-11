@@ -1,4 +1,4 @@
-use crate::{string_input,int_input,u16_input};
+use crate::{string_input,int_input};
 use crate::{anime_names,anime_ep_range,anime_link};
 use crate::open_video;
 use crate::main;
@@ -30,9 +30,9 @@ pub fn anime_stream(){
         count += 1;
     });
     let mut anime_num: usize = usize::MAX;
-    while anime_num == usize::max_value() || anime_num >= anime_list.len() {
+    while anime_num == usize::max_value() || anime_num > anime_list.len() {
         anime_num = int_input("Enter anime number: ");
-        if anime_num >= anime_list.len() {
+        if anime_num > anime_list.len() {
             println!("Invalid anime number");
         }
     }
@@ -47,9 +47,9 @@ pub fn anime_stream(){
         loop{
             println!("select episode 1-{}: ", ep_range);
             let mut ep_num: usize = usize::MAX;
-            while ep_num == usize::max_value() || ep_num >= ep_range as usize {
+            while ep_num == usize::max_value() || ep_num > ep_range as usize {
                 ep_num = int_input("Enter episode number: ");
-                if ep_num >= ep_range as usize {
+                if ep_num > ep_range as usize {
                     println!("Invalid episode number");
                 }
             }
