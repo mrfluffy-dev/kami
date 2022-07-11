@@ -48,7 +48,6 @@ pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
                 println!("{}", "Invalid chapter number".red());
                 continue;
             }
-            //let chapter_number = chapter_number.parse::<usize>().unwrap();
             let chapter_url = &ln_chapters_urls[chapter_number_int as usize];
             let chapter_url = chapter_url.trim().to_string();
             return (chapter_url, selected_page);
