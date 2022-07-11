@@ -44,7 +44,6 @@ pub fn anime_stream(){
         open_video(link);
         main();
     } else {
-        loop{
             println!("select episode 1-{}: ", ep_range);
             let mut ep_num: usize = usize::MAX;
             while ep_num == usize::max_value() || ep_num > ep_range as usize {
@@ -53,8 +52,30 @@ pub fn anime_stream(){
                     println!("Invalid episode number");
                 }
             }
+
+        loop{
             let link = anime_link(title, ep_num as u64);
             open_video(link);
+            println!("{}","n: next episode".green());
+            println!("{}","p: previous episode".yellow());
+            println!("{}","q: quit".red());
+            let input = string_input("Enter command: ");
+            if input == "n" {
+                if ep_num == ep_range as usize {
+                    println!("No more episodes");
+                } else {
+                    ep_num += 1;
+                }
+            } else if input == "p" {
+                if ep_num == 1 {
+                    println!("No previous episodes");
+                } else {
+                    ep_num -= 1;
+                }
+            } else if input == "q" {
+                std::process::exit(0);
+            }
+
         }
     }
 }
