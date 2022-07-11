@@ -27,9 +27,10 @@ pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
             }
             count += 1;
         });
-        println!("(n)\t{}", "Go to next page".red());
-        println!("(b)\t{}", "Go to previous page".red());
-        println!("(q)\t{}", "go back to main menu".red());
+        println!("(n)\t{}", "Go to next page".green());
+        println!("(b)\t{}", "Go to previous page".yellow());
+        println!("(s)\t{}", "Search another title".red());
+        println!("(q)\t{}", "quit".red());
         let chapter_number = string_input("Which chapter do you want to read? ");
         if chapter_number == "n" && selected_page < ln_last_page.parse::<u32>().unwrap() {
             selected_page += 1;
@@ -38,17 +39,21 @@ pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
             selected_page -= 1;
             print!("\x1B[2J\x1B[1;1H");
         } else if chapter_number == "q" {
+            print!("\x1B[2J\x1B[1;1H");
+           std::process::exit(0);
+        } else if chapter_number == "s" {
             main();
-        } else {
+        }
+        else {
             let chapter_number = chapter_number.trim().to_string();
-            let mut chapter_number_int = 0;
+            let mut _chapter_number_int = 0;
             if chapter_number.parse::<u32>().is_ok() {
-                chapter_number_int = chapter_number.parse::<u32>().unwrap();
+                _chapter_number_int = chapter_number.parse::<u32>().unwrap();
             } else {
-                println!("{}", "Invalid chapter number".red());
+                println!("{}", "Invalid option".red());
                 continue;
             }
-            let chapter_url = &ln_chapters_urls[chapter_number_int as usize];
+            let chapter_url = &ln_chapters_urls[_chapter_number_int as usize];
             let chapter_url = chapter_url.trim().to_string();
             return (chapter_url, selected_page);
         }
