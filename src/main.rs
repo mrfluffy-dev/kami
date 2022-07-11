@@ -32,7 +32,7 @@ fn main() {
     if _arg == "l" {
         ln_read();
     } else if _arg == "a" {
-        anime_stream()
+        anime_stream(true)
     } else {
         println!("Invalid argument");
     }

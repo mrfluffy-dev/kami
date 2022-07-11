@@ -4,8 +4,8 @@ use crate::open_video;
 use crate::main;
 use colored::Colorize;
 //use crate
-pub fn anime_stream(){
-    let query = if std::env::args().len() > 2 {
+pub fn anime_stream(first_run: bool) {
+    let query = if std::env::args().len() > 2 && first_run {
         std::env::args().nth(2).unwrap()
     } else {
         string_input("Enter query: ")
@@ -58,6 +58,7 @@ pub fn anime_stream(){
             open_video(link);
             println!("{}","n: next episode".green());
             println!("{}","p: previous episode".yellow());
+            println!("{}","s: search another anime".green());
             println!("{}","q: quit".red());
             let input = string_input("Enter command: ");
             if input == "n" {
@@ -72,6 +73,9 @@ pub fn anime_stream(){
                 } else {
                     ep_num -= 1;
                 }
+            } else if input == "s" {
+                //remove all the arguments
+                anime_stream(false);
             } else if input == "q" {
                 std::process::exit(0);
             }
