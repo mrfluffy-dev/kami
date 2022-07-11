@@ -79,7 +79,9 @@ pub fn anime_stream(first_run: bool) {
             } else if input == "q" {
                 std::process::exit(0);
             }
-
+            else{
+                println!("Invalid command");
+            }
         }
     }
 }
