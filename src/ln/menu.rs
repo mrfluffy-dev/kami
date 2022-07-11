@@ -21,16 +21,16 @@ pub fn chapter_selector(ln_url: &str, mut selected_page: u32) -> (String, u32) {
         let mut count = 0;
         ln_chapters.into_iter().for_each(|chaprer| {
             if count % 2 == 0 {
-                println!("({})\t{}", count, format_args!("{}", chaprer.blue()));
+                println!("({})\t{}", count.to_string().blue(), format_args!("{}", chaprer.blue()));
             } else {
-                println!("({})\t{}", count, format_args!("{}", chaprer.yellow()));
+                println!("({})\t{}", count.to_string().yellow(), format_args!("{}", chaprer.yellow()));
             }
             count += 1;
         });
-        println!("(n)\t{}", "Go to next page".green());
-        println!("(b)\t{}", "Go to previous page".yellow());
-        println!("(s)\t{}", "Search another title".red());
-        println!("(q)\t{}", "quit".red());
+        println!("{}\t{}","n:".green(), "Go to next page".green());
+        println!("{}\t{}","b:".yellow(), "Go to previous page".yellow());
+        println!("{}\t{}","s:".green(), "Search another title".green());
+        println!("{}\t{}","q:".red(), "quit".red());
         let chapter_number = string_input("Which chapter do you want to read? ");
         if chapter_number == "n" && selected_page < ln_last_page.parse::<u32>().unwrap() {
             selected_page += 1;

@@ -23,13 +23,13 @@ pub fn search_ln() -> String {
         let mut count = 0;
         ln_titles.into_iter().for_each(|ln| {
             if count % 2 == 0 {
-                println!("({})\t{}", count, format_args!("{}", ln.blue()));
+                println!("({})\t{}", count.to_string().blue(), format_args!("{}", ln.blue()));
             } else {
-                println!("({})\t{}", count, format_args!("{}", ln.yellow()));
+                println!("({})\t{}", count.to_string().yellow(), format_args!("{}", ln.yellow()));
             }
             count += 1;
         });
-        println!("(s)\t{}", "Search another title".green());
+        println!("{}\t{}","s:".green(), "Search another title".green());
         let ln_number = string_input("Enter an option: ");
         if ln_number != "s" && ln_number.parse::<usize>().is_ok() {
             let ln_number = ln_number.trim().to_string();
