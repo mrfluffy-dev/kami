@@ -52,7 +52,6 @@ pub fn anime_stream(first_run: bool) {
                     println!("Invalid episode number");
                 }
             }
-
         loop{
             let link = anime_link(title, ep_num as u64);
             open_video(link);
