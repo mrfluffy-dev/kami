@@ -20,28 +20,28 @@ I will be explaining how to install them.
 ** Linux/Mac
 1. install bat and mpv with your package manager(homebrew if on mac)
 2. Clone the repo for kami.
-#+begin_src shell
+   #+begin_src shell
 git clone https://github.com/mrfluffy-dev/kami.git && cd kami
-#+end_src
+   #+end_src
 4. install [[https://www.rust-lang.org/tools/install][Rust]]
 5. Build kami using cargo.
-#+begin_src shell
+   #+begin_src shell
 cargo build --release
-#+end_src
+   #+end_src
 6. Copy kami to your path.
-#+begin_src shell
+   #+begin_src shell
 cp target/release/kami /usr/local/bin/kami
-#+end_src
+   #+end_src
 ** Windows
 1. install scoop
-#+begin_src shell
+   #+begin_src shell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm get.scoop.sh | iex
-#+end_src
+   #+end_src
 2. install git
-#+begin_src shell
+   #+begin_src shell
 scoop install git
-#+end_src
+   #+end_src
 1. install mpv
    #+begin_src shell
 scoop bucket add extras
