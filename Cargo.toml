@@ -1,6 +1,6 @@
 [package]
 name = "kami"
-#author = "mrfluffy-dev"
+author = "mrfluffy-dev"
 license = "GPL-3.0"
 version = "0.2.0"
 edition = "2021"
@@ -12,3 +12,4 @@ regex = "1.5.6"
 colored = "2.0.0"
 isahc = "1.7.2"
 base64 = "0.13"
+termsize = "0.1.6"

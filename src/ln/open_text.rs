@@ -2,16 +2,11 @@ use std::io::Result;
 use std::process::{Command, ExitStatus, Stdio};
 
 pub fn open_bat() -> Result<ExitStatus> {
-    let terminal_cols_cmd = Command::new("tput").arg("cols").output()?.stdout;
-    let terminal_cols: String = match std::str::from_utf8(&terminal_cols_cmd) {
-        Err(_e) => "80".to_string(),
-        Ok(v) => (v.trim().parse::<i32>().unwrap() - 10).to_string(),
-    };
-
+		let termsize::Size {rows: _, cols} = termsize::get().unwrap();
     let soft_wrap = match Command::new("fold")
         .arg("-s")
         .arg("-w")
-        .arg(terminal_cols)
+        .arg((cols - 9).to_string())
         .arg("/tmp/log_e")
         .stdout(Stdio::piped())
         .spawn()
