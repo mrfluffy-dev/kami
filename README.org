@@ -4,7 +4,7 @@
 1. [[#Why-use-kami][Why use kami]]
 2. [[#Dependencies][Dependencies]]
 3. [[#Install][Install]]
-   - [[#Linux/Mac][Linux/mac]]
+   - [[#Linux&Mac][Linux&mac]]
    - [[#Windows][Windows]]
 4. [[#Honorable-mentions][Honorable mentions]]
 * Why use kami
@@ -17,7 +17,7 @@ Also rust is fast as fuck boiiiii.
 I will be explaining how to install them.
 
 * Install
-** Linux/Mac
+** Linux&Mac
 1. install bat and mpv with your package manager(homebrew if on mac)
 2. Clone the repo for kami.
 #+begin_src shell
