@@ -4,7 +4,7 @@
 1. [[#Why-use-kami][Why use kami]]
 2. [[#Dependencies][Dependencies]]
 3. [[#Install][Install]]
-   - [[#Linux--Mac][Linux/mac]]
+   - [[#LinuxMac][Linux/mac]]
    - [[#Windows][Windows]]
 4. [[#Honorable-mentions][Honorable mentions]]
 * Why use kami
