@@ -23,19 +23,15 @@ pub fn search_ln() -> String {
         let mut count = 0;
         ln_titles.into_iter().for_each(|ln| {
             if count % 2 == 0 {
-                println!("({})\t{}", count, format_args!("{}", ln.blue()));
+                println!("({})\t{}", count.to_string().blue(), format_args!("{}", ln.blue()));
             } else {
-                println!("({})\t{}", count, format_args!("{}", ln.yellow()));
+                println!("({})\t{}", count.to_string().yellow(), format_args!("{}", ln.yellow()));
             }
             count += 1;
         });
-        println!("(n)\t{}", "Search another title".red());
-        let mut ln_number = String::new();
-        std::io::stdin()
-            .read_line(&mut ln_number)
-            .expect("Failed to read line");
-        ln_number = ln_number.trim().to_string();
-        if ln_number != "n" {
+        println!("{}\t{}","s:".green(), "Search another title".green());
+        let ln_number = string_input("Enter an option: ");
+        if ln_number != "s" && ln_number.parse::<usize>().is_ok() {
             let ln_number = ln_number.trim().to_string();
             let ln_number = ln_number.parse::<usize>().unwrap();
             let ln_url = &ln_urls[ln_number];
@@ -43,6 +39,8 @@ pub fn search_ln() -> String {
             _is_n = true;
             print!("\x1B[2J\x1B[1;1H");
             return ln_url;
+        } else {
+            print!("invalid input");
         }
         print!("\x1B[2J\x1B[1;1H");
     }
