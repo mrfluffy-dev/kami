@@ -1,19 +1,18 @@
-use crate::anime::anime::anime_stream;
-use crate::anime::scraper::{anime_ep_range, anime_link, anime_names};
-use crate::ln::ln::ln_read;
-use crate::ln::menu::chapter_selector;
-use crate::ln::open_text::open_bat;
-use crate::ln::scraper::get_full_text;
-use crate::{
-    anime::player::open_video,
-    helpers::take_input::{int_input, string_input},
-    ln::search::search_ln,
-};
-use colored::Colorize;
-use ln::scraper::get_ln_next_page;
 mod anime;
 mod helpers;
 mod ln;
+
+use anime::anime::anime_stream;
+use colored::Colorize;
+use ln::{scraper::get_ln_next_page, ln::ln_read};
+use ln::search::search_ln;
+
+use crate::anime::{
+    player::open_video,
+    scraper::{anime_ep_range, anime_link, anime_names},
+};
+use crate::helpers::take_input::{int_input, string_input};
+use crate::ln::{menu::chapter_selector, open_text::open_bat, scraper::get_full_text};
 
 fn main() {
     let mut _arg = String::new();
