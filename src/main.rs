@@ -88,22 +88,22 @@ fn page_selector(ln_id: &str, selected_page: u32) -> String {
 
 fn print_help(){
     println!("anime:\t\t{}", format_args!("{}", "-a --anime".red()));
-    println!("{}", "after this^^^ argument you can either enter a search term".green());
+    println!("{}", "after this^^^ argument you can enter a search term".green());
     println!("{}", "for exaple kami -a \"one piece\"");
     //print blank line
     println!("");
     println!("episode:\t{}", format_args!("{}", "-e --episode".red()));
-    println!("{}", "after this^^^ argument you can either enter a chapter number".green());
+    println!("{}", "after this^^^ argument you can enter a chapter number".green());
     println!("{}", "for exaple kami -c 200");
     //print blank line
     println!("");
     println!("light novel:\t{}", format_args!("{}", "-l --ln".red()));
-    println!("{}", "after this^^^ argument you can either enter a search term".green());
+    println!("{}", "after this^^^ argument you can enter a search term".green());
     println!("{}", "for exaple kami -l \"one piece\"");
     //print blank line
     println!("");
     println!("chapter:\t{}", format_args!("{}", "-c --chapter".red()));
-    println!("{}", "after this^^^ argument you can either enter a chapter number".green());
+    println!("{}", "after this^^^ argument you can enter a chapter number".green());
     println!("{}", "for exaple kami -c 200");
     //print blank line
     println!("");
