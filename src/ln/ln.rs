@@ -1,9 +1,14 @@
 use std::fs::File;
 use std::io::Write;
 use crate::{search_ln,chapter_selector,get_full_text,open_bat};
-pub fn ln_read(){
-    let ln_url = search_ln();
+pub fn ln_read(search: &str, chapter: u32){
+    //convert search in to Option<&str>
+    let ln_url = search_ln(&search);
+    let chapter = chapter as f64;
     let mut selected_page = 1;
+    if chapter != 0.0{
+        selected_page = (chapter/48.0).ceil() as u32;
+    }
     loop {
         //make empty tuple called chapter_url with (String, u32, u32)
         let chapter_url = chapter_selector(&ln_url, selected_page);

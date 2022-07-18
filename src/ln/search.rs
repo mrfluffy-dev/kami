@@ -2,11 +2,16 @@ use crate::helpers::{fixing_text::remove_after_dash, take_input::string_input};
 use colored::Colorize;
 use regex::Regex;
 
-pub fn search_ln() -> String {
+pub fn search_ln(search: &str) -> String {
     let mut _is_n = false;
     print!("\x1B[2J\x1B[1;1H");
     while !_is_n {
-        let search_path = string_input("What ln do you want to read? ");
+        //if search is None, take input from user
+        let search_path = if search == "" {
+            string_input("What ln do you want to read? ")
+        } else {
+            search.to_string()
+        };
         let search_path = search_path.replace(' ', "+");
         let url = "https://readlightnovels.net/?s=".to_string();
         let url = format!("{}{}", url, search_path.trim()).trim().to_string();

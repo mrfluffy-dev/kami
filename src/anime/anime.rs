@@ -4,12 +4,14 @@ use crate::open_video;
 use crate::main;
 use colored::Colorize;
 //use crate
-pub fn anime_stream(first_run: bool) {
-    let query = if std::env::args().len() > 2 && first_run {
-        std::env::args().nth(2).unwrap()
-    } else {
+pub fn anime_stream(search: String, episode: u32) {
+    let query = if search != "" {
+        search
+    }
+    else{
         string_input("Search anime: ")
     };
+
     let anime_list = anime_names(&query);
     let mut count = 0;
     print!("\x1B[2J\x1B[1;1H");
@@ -43,15 +45,24 @@ pub fn anime_stream(first_run: bool) {
         let link = anime_link(title, 1);
         open_video(link);
         main();
-    } else {
-            println!("select episode 1-{}: ", ep_range);
-            let mut ep_num: usize = usize::MAX;
+    }
+    else {
+        let mut ep_num: usize = usize::MAX;
+        if episode > ep_range.into() {
+            println!("Invalid episode number");
+            main();
+        }
+        else if episode != 0{
+            ep_num = episode as usize;
+        }else{
+        println!("select episode 1-{}: ", ep_range);
             while ep_num == usize::max_value() || ep_num > ep_range as usize {
                 ep_num = int_input("Enter episode number: ");
                 if ep_num > ep_range as usize {
                     println!("Invalid episode number");
                 }
             }
+        }
         loop{
             let link = anime_link(title, ep_num as u64);
             open_video(link);
@@ -74,7 +85,7 @@ pub fn anime_stream(first_run: bool) {
                 }
             } else if input == "s" {
                 //remove all the arguments
-                anime_stream(false);
+                anime_stream("".to_string(), 0);
             } else if input == "q" {
                 std::process::exit(0);
             }

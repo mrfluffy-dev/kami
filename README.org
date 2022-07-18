@@ -4,11 +4,11 @@
 1. [[#Why-use-kami][Why use kami]]
 2. [[#Dependencies][Dependencies]]
 3. [[#Install][Install]]
-   - [[#Linux--Mac][Linux/mac]]
+   - [[#LinuxMac][Linux/mac]]
    - [[#Windows][Windows]]
 4. [[#Honorable-mentions][Honorable mentions]]
 * Why use kami
-well its a fast and easy way to watch anime and read light novels right i your terminal no need to open a browser.
+well its a fast and easy way to watch anime and read light novels right in your terminal no need to open a browser.
 Also rust is fast as fuck boiiiii.
 * Dependencies
 1. [[https://github.com/sharkdp/bat][bat]]
