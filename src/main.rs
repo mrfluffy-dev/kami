@@ -31,13 +31,19 @@ fn main() {
             anime = true;
             //look at the next argument and see if it is a search term
             if let Some(arg) = std::env::args().nth(count + 1) {
-                search = arg;
+                if !arg.starts_with("-") {
+                    search = arg;
+                }
             }
+
         }
         if arg == "--ln" || arg == "-l" {
             ln = true;
+            //if let Some(arg) = std::env::args().nth(count + 1)  and that arg does not start with a '-' set search to that arg
             if let Some(arg) = std::env::args().nth(count + 1) {
-                search = arg;
+                if !arg.starts_with("-") {
+                    search = arg;
+                }
             }
         }
         if arg == "--chapter" || arg == "-c" {
