@@ -1,14 +1,13 @@
-use crate::{string_input,int_input};
-use crate::{anime_names,anime_ep_range,anime_link};
-use crate::open_video;
 use crate::main;
+use crate::open_video;
+use crate::{anime_ep_range, anime_link, anime_names};
+use crate::{int_input, string_input};
 use colored::Colorize;
 //use crate
 pub fn anime_stream(search: String, episode: u32) {
     let query = if search != "" {
         search
-    }
-    else{
+    } else {
         string_input("Search anime: ")
     };
 
@@ -45,17 +44,15 @@ pub fn anime_stream(search: String, episode: u32) {
         let link = anime_link(title, 1);
         open_video(link);
         main();
-    }
-    else {
+    } else {
         let mut ep_num: usize = usize::MAX;
         if episode > ep_range.into() {
             println!("Invalid episode number");
             main();
-        }
-        else if episode != 0{
+        } else if episode != 0 {
             ep_num = episode as usize;
-        }else{
-        println!("select episode 1-{}: ", ep_range);
+        } else {
+            println!("select episode 1-{}: ", ep_range);
             while ep_num == usize::max_value() || ep_num > ep_range as usize {
                 ep_num = int_input("Enter episode number: ");
                 if ep_num > ep_range as usize {
@@ -63,13 +60,13 @@ pub fn anime_stream(search: String, episode: u32) {
                 }
             }
         }
-        loop{
+        loop {
             let link = anime_link(title, ep_num as u64);
             open_video(link);
-            println!("{}","n: next episode".green());
-            println!("{}","p: previous episode".yellow());
-            println!("{}","s: search another anime".green());
-            println!("{}","q: quit".red());
+            println!("{}", "n: next episode".green());
+            println!("{}", "p: previous episode".yellow());
+            println!("{}", "s: search another anime".green());
+            println!("{}", "q: quit".red());
             let input = string_input("Enter command: ");
             if input == "n" {
                 if ep_num == ep_range as usize {
@@ -88,8 +85,7 @@ pub fn anime_stream(search: String, episode: u32) {
                 anime_stream("".to_string(), 0);
             } else if input == "q" {
                 std::process::exit(0);
-            }
-            else{
+            } else {
                 println!("Invalid command");
             }
         }
