@@ -79,7 +79,7 @@ pub fn anime_link(title: &str, ep: u64) -> (String, String) {
         .as_str()
         .trim()
         .to_string();
-    let title = format!("{} episode {}", title.replace('-', " "), ep);
+    let title = format!("{} Episode {}", title.replace('-', " "), ep);
     let encoded_id1 = encode(&id1);
     let anime_id = encode(format!("{}LTXs3GrU8we9O{}", id1, encoded_id1));
     let html = format!("https://animixplay.to/api/live{}", anime_id);
