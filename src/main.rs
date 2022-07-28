@@ -67,7 +67,15 @@ fn main() {
         print_help();
     }
     if anime == false && ln == false {
-        print_help();
+        println!("1:    Anime");
+        println!("2:    Light Novel");
+
+        let a = int_input("pick your poison: ");
+        match a{
+        1 => anime = true,
+        2 => ln = true,
+        _=>println!("invalid option. ")
+    };
     }
     if anime == true && ln == true {
         println!("you can only use one of the arguments at a time");
