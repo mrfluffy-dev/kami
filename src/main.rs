@@ -70,11 +70,11 @@ fn main() {
         println!("1:    Anime");
         println!("2:    Light Novel");
 
-        let a = int_input("pick your poison rip hh");
+        let a = int_input("pick your poison: ");
         match a{
         1 => anime = true,
         2 => ln = true,
-        _=>println!("invalid option no hentai here")
+        _=>println!("invalid option. ")
     };
     }
     if anime == true && ln == true {
