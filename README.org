@@ -82,5 +82,6 @@ cp target/release/kami.exe /usr/bin/kami
    #+end_src
 8. open kami by using ~kami~
 * Honorable mentions
-- [[https://github.com/pystardust/ani-cli][ani-cli]] just a bunch of fucking nice people.
-- [[https://docs.rs/][rust docs]] honestly its just so useful.
+- [[https://github.com/pystardust/ani-cli][ani-cli]] Just a bunch of fucking nice people.
+- [[https://docs.rs/][rust docs]] Honestly its just so useful.
+- [[https://github.com/DemonKingSwarn/flix-cli][flix-cli]] For forcing me to make a release.
