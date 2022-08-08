@@ -21,6 +21,7 @@ fn main() {
     let mut ln = false;
     let mut chapter: u32 = 0;
     let mut episode: u32 = 0;
+    let mut resume = false;
     //let search = option string
     let mut search = String::new();
     let mut count = 0;
@@ -60,6 +61,10 @@ fn main() {
                 episode = 0;
             }
         }
+        if arg == "--resume" || arg == "-r" {
+            resume = true;
+        }
+
         count += 1;
     }
 
@@ -84,7 +89,7 @@ fn main() {
     if ln == true {
         ln_read(&search, chapter);
     } else if anime == true {
-        anime_stream(search, episode);
+        anime_stream(search, episode, resume);
     } else {
         println!("Invalid argument");
     }
@@ -110,6 +115,9 @@ fn print_help() {
     );
     println!("{}", "for exaple kami -c 200");
     //print blank line
+    println!("");
+    println!("resume:\t\t{}", format_args!("{}", "-r --resume".red()));
+    println!("{}", "only works with anime".green());
     println!("");
     println!("light novel:\t{}", format_args!("{}", "-l --ln".red()));
     println!(

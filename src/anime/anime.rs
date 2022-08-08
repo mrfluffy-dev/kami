@@ -5,7 +5,7 @@ use crate::{get_anime_id, get_token, get_user_anime_progress, update_anime_progr
 use crate::{int_input, string_input};
 use colored::Colorize;
 //use crate
-pub fn anime_stream(search: String, episode: u32) {
+pub fn anime_stream(search: String, episode: u32, resume: bool) {
     let token = get_token();
     let query = if search != "" {
         search
@@ -42,7 +42,7 @@ pub fn anime_stream(search: String, episode: u32) {
     let title = &anime_list[anime_num];
     let ep_range = anime_ep_range(title);
     // if there is only one episode, then don't ask user to choose episode
-    let id = get_anime_id(&title.replace("-", " "));
+    let id = get_anime_id(&title);
     if ep_range == 1 {
         let link = anime_link(title, 1);
         open_video(link);
@@ -57,12 +57,15 @@ pub fn anime_stream(search: String, episode: u32) {
             ep_num = episode as usize;
         } else {
             let current_progress = get_user_anime_progress(id, &token);
-            println!("you are currently on episode: {}", current_progress);
-            println!("select episode 1-{}: ", ep_range);
-            while ep_num == usize::max_value() || ep_num > ep_range as usize {
-                ep_num = int_input("Enter episode number: ");
-                if ep_num > ep_range as usize {
-                    println!("Invalid episode number");
+            if resume && current_progress != 0 {
+                ep_num = (current_progress + 1) as usize;
+            } else {
+                println!("select episode 1-{}: ", ep_range);
+                while ep_num == usize::max_value() || ep_num > ep_range as usize {
+                    ep_num = int_input("Enter episode number: ");
+                    if ep_num > ep_range as usize {
+                        println!("Invalid episode number");
+                    }
                 }
             }
         }
@@ -91,7 +94,7 @@ pub fn anime_stream(search: String, episode: u32) {
                 }
             } else if input == "s" {
                 //remove all the arguments
-                anime_stream("".to_string(), 0);
+                anime_stream("".to_string(), 0, false);
             } else if input == "q" {
                 std::process::exit(0);
             } else {
