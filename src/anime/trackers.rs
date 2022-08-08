@@ -133,7 +133,7 @@ pub fn get_user_anime_progress(anime_id: i32, token: &str) -> i32 {
     let regex = regex::Regex::new(r#"progress":(.*?)}"#).unwrap();
     let resp: String = resp.as_ref().unwrap().to_string();
     if resp.contains("errors") {
-        1
+        0
     } else {
         let progress = regex
             .captures(&resp)
