@@ -8,8 +8,9 @@
    - [[#Windows][Windows]]
 4. [[#Honorable-mentions][Honorable mentions]]
 * Why use kami
-well its a fast and easy way to watch anime and read light novels right in your terminal no need to open a browser.
+Well its a fast and easy way to watch anime and read light novels right in your terminal no need to open a browser.
 Also rust is fast as fuck boiiiii.
+It can keep your anime tracking up to date with anilist.
 * Dependencies
 1. [[https://github.com/sharkdp/bat][bat]]
 2. [[https://mpv.io/][mpv]]

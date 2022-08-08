@@ -130,12 +130,9 @@ pub fn get_user_anime_progress(anime_id: i32, token: &str) -> i32 {
         .send()
         .unwrap()
         .text();
-    //println!("{}", resp);
     let regex = regex::Regex::new(r#"progress":(.*?)}"#).unwrap();
     let resp: String = resp.as_ref().unwrap().to_string();
-    //if resp contains "404"set progress to 1
-    // else set progress to the number in the regex
-    if resp.contains("404") {
+    if resp.contains("errors") {
         1
     } else {
         let progress = regex
