@@ -60,6 +60,7 @@ pub fn anime_stream(search: String, episode: u32, resume: bool) {
             if resume && current_progress != 0 {
                 ep_num = (current_progress + 1) as usize;
             } else {
+                println!("you are currently on episode {}", current_progress);
                 println!("select episode 1-{}: ", ep_range);
                 while ep_num == usize::max_value() || ep_num > ep_range as usize {
                     ep_num = int_input("Enter episode number: ");
