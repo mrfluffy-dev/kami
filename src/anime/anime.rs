@@ -1,10 +1,12 @@
 use crate::main;
 use crate::open_video;
 use crate::{anime_ep_range, anime_link, anime_names};
+use crate::{get_anime_id, get_token, get_user_anime_progress, update_anime_progress};
 use crate::{int_input, string_input};
 use colored::Colorize;
 //use crate
 pub fn anime_stream(search: String, episode: u32) {
+    let token = get_token();
     let query = if search != "" {
         search
     } else {
@@ -40,9 +42,11 @@ pub fn anime_stream(search: String, episode: u32) {
     let title = &anime_list[anime_num];
     let ep_range = anime_ep_range(title);
     // if there is only one episode, then don't ask user to choose episode
+    let id = get_anime_id(&title.replace("-", " "));
     if ep_range == 1 {
         let link = anime_link(title, 1);
         open_video(link);
+        update_anime_progress(id, &title.replace("-", " "), 1, &token);
         main();
     } else {
         let mut ep_num: usize = usize::MAX;
@@ -52,6 +56,8 @@ pub fn anime_stream(search: String, episode: u32) {
         } else if episode != 0 {
             ep_num = episode as usize;
         } else {
+            let current_progress = get_user_anime_progress(id, &token);
+            println!("you are currently on episode: {}", current_progress);
             println!("select episode 1-{}: ", ep_range);
             while ep_num == usize::max_value() || ep_num > ep_range as usize {
                 ep_num = int_input("Enter episode number: ");
@@ -63,6 +69,9 @@ pub fn anime_stream(search: String, episode: u32) {
         loop {
             let link = anime_link(title, ep_num as u64);
             open_video(link);
+            let id = get_anime_id(&title.replace("-", " "));
+            println!("{}", get_user_anime_progress(id, &token));
+            update_anime_progress(id, &title.replace("-", " "), ep_num, &token);
             println!("{}", "n: next episode".green());
             println!("{}", "p: previous episode".yellow());
             println!("{}", "s: search another anime".green());
