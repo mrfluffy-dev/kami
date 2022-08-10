@@ -1,6 +1,7 @@
 mod anime;
 mod helpers;
 mod ln;
+mod ui;
 
 use anime::anime::anime_stream;
 use colored::Colorize;
@@ -14,7 +15,7 @@ use crate::anime::{
 };
 use crate::helpers::take_input::{int_input, string_input};
 use crate::ln::{menu::chapter_selector, open_text::open_bat, scraper::get_full_text};
-
+use crate::ui::anime_ui::ui_anime;
 fn main() {
     let mut help = false;
     let mut anime = false;
@@ -89,7 +90,8 @@ fn main() {
     if ln == true {
         ln_read(&search, chapter);
     } else if anime == true {
-        anime_stream(search, episode, resume);
+        //anime_stream(search, episode, resume);
+        ui_anime();
     } else {
         println!("Invalid argument");
     }

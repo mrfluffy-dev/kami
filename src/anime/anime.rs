@@ -13,7 +13,7 @@ pub fn anime_stream(search: String, episode: u32, resume: bool) {
         string_input("Search anime: ")
     };
 
-    let anime_list = anime_names(&query);
+    let anime_list = anime_names(query);
     let mut count = 0;
     print!("\x1B[2J\x1B[1;1H");
     anime_list.iter().for_each(|anime| {

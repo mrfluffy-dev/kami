@@ -31,7 +31,7 @@ pub fn get_ep_location(url: &str) -> String {
     location.to_str().unwrap().to_string()
 }
 
-pub fn anime_names(query: &str) -> Vec<String> {
+pub fn anime_names(query: String) -> Vec<String> {
     let url = format!("https://gogoanime.lu//search.html?keyword={}", query);
     //relpace all spaces with %20
     let url = url.replace(' ', "%20");

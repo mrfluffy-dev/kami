@@ -9,5 +9,4 @@ pub fn open_video(link: (String, String)) {
         .expect("failed to open mpv");
 
     // clear terminal
-    print!("\x1b[2J\x1b[1;1H");
 }
