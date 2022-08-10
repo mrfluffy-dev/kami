@@ -147,7 +147,7 @@ pub fn get_user_anime_progress(anime_id: i32, token: &str) -> i32 {
     }
 }
 
-pub fn update_anime_progress(anime_id: i32, anime: &str, progress: usize, token: &str) {
+pub fn update_anime_progress(anime_id: i32, progress: usize, token: &str) {
     const UPDATE: &str = "
 mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int) {
     SaveMediaListEntry (mediaId: $mediaId, status: $status, progress: $progress) {
@@ -176,5 +176,4 @@ mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int) {
         .send()
         .unwrap()
         .text();
-    println!("updated progress of {} to episode {}", anime, progress);
 }

@@ -1,9 +1,8 @@
 mod anime;
 mod helpers;
 mod ln;
-mod ui;
 
-use anime::anime::anime_stream;
+use anime::anime::anime_ui;
 use colored::Colorize;
 use ln::search::search_ln;
 use ln::{ln::ln_read, scraper::get_ln_next_page};
@@ -15,14 +14,11 @@ use crate::anime::{
 };
 use crate::helpers::take_input::{int_input, string_input};
 use crate::ln::{menu::chapter_selector, open_text::open_bat, scraper::get_full_text};
-use crate::ui::anime_ui::ui_anime;
 fn main() {
     let mut help = false;
     let mut anime = false;
     let mut ln = false;
     let mut chapter: u32 = 0;
-    let mut episode: u32 = 0;
-    let mut resume = false;
     //let search = option string
     let mut search = String::new();
     let mut count = 0;
@@ -55,16 +51,6 @@ fn main() {
                 chapter = 0;
             }
         }
-        if arg == "--episode" || arg == "-e" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                episode = arg.parse::<u32>().unwrap();
-            } else {
-                episode = 0;
-            }
-        }
-        if arg == "--resume" || arg == "-r" {
-            resume = true;
-        }
 
         count += 1;
     }
@@ -91,7 +77,7 @@ fn main() {
         ln_read(&search, chapter);
     } else if anime == true {
         //anime_stream(search, episode, resume);
-        ui_anime();
+        _ = anime_ui();
     } else {
         println!("Invalid argument");
     }
