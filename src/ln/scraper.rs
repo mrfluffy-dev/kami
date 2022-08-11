@@ -1,6 +1,8 @@
 use isahc::{ReadResponseExt, Request, RequestExt};
 use regex::Regex;
 
+use crate::helpers::fixing_text::remove_after_dash;
+
 use crate::helpers::fixing_text::fix_html_encoding;
 
 //gets the full html of the page
@@ -101,4 +103,48 @@ pub fn get_ln_text(chapter_url: &str) -> Vec<String> {
     ln_text.truncate(ln_text.len() - 3);
 
     fix_html_encoding(&ln_text)
+}
+
+//gets the list of ln's from the html and returns it as a vector of the ln's name and href
+pub fn get_ln_list(html: &str) -> Vec<String> {
+    let re = Regex::new(r#"(?m)^\s*(<a href="[^"]*" title="[^"]*")"#).unwrap();
+    let mut ln_list: Vec<String> = Vec::new();
+    for cap in re.captures_iter(html) {
+        ln_list.push(cap.get(1).unwrap().as_str().trim().to_string());
+    }
+    ln_list
+}
+//gets the titles of the ln's from the html and returns it as a vector of the ln's name
+pub fn get_ln_titles(ln_list: &Vec<String>) -> Vec<String> {
+    let re = Regex::new(r#"(?m)^\s*<a href="[^"]*" title="([^"]*)""#).unwrap();
+    let mut ln_title: Vec<String> = Vec::new();
+    for ln in ln_list {
+        for cap in re.captures_iter(ln) {
+            ln_title.push(cap.get(1).unwrap().as_str().to_string());
+        }
+    }
+    ln_title
+}
+
+//gets the urls of the ln's from the html and returns it as a vector of the ln's href
+pub fn get_ln_urls(ln_list: &Vec<String>) -> Vec<String> {
+    let re = Regex::new(r#"(?m)^\s*<a href="([^"]*)""#).unwrap();
+    let mut ln_url: Vec<String> = Vec::new();
+    for ln in ln_list {
+        for cap in re.captures_iter(ln) {
+            ln_url.push(cap.get(1).unwrap().as_str().to_string());
+        }
+    }
+    ln_url
+}
+
+//gets the chapter titles from the html and returns it as a vector of the chapter's name
+pub fn get_ln_chapters(html: &str) -> Vec<String> {
+    let re = Regex::new(r#"title=(.*?)>"#).unwrap();
+    let mut ln_list: Vec<String> = Vec::new();
+    for cap in re.captures_iter(html) {
+        ln_list.push(cap.get(1).unwrap().as_str().trim().to_string());
+    }
+    ln_list = remove_after_dash(&ln_list);
+    ln_list
 }
