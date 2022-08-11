@@ -155,7 +155,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         if let Event::Key(key) = event::read()? {
             match app.input_mode {
                 InputMode::Normal => match key.code {
-                    KeyCode::Char('o') => {
+                    KeyCode::Char('i') => {
                         app.input_mode = InputMode::Editing;
                     }
                     KeyCode::Char('q') => {
@@ -309,7 +309,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 Span::raw("Press "),
                 Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to exit, "),
-                Span::styled("o", Style::default().add_modifier(Modifier::BOLD)),
+                Span::styled("i", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to search, "),
                 Span::styled("h", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to go to the previous page, "),
