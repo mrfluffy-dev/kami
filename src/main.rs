@@ -4,8 +4,8 @@ mod ln;
 
 use anime::anime::anime_ui;
 use colored::Colorize;
-use ln::search::search_ln;
-use ln::{ln::ln_read, scraper::get_ln_next_page};
+//use ln::ui::ln_ui;
+use ln::ln::ln_ui;
 
 use crate::anime::{
     player::open_video,
@@ -13,14 +13,12 @@ use crate::anime::{
     trackers::*,
 };
 use crate::helpers::take_input::{int_input, string_input};
-use crate::ln::{menu::chapter_selector, open_text::open_bat, scraper::get_full_text};
 fn main() {
     let mut help = false;
     let mut anime = false;
     let mut ln = false;
     let mut chapter: u32 = 0;
     //let search = option string
-    let mut search = String::new();
     let mut count = 0;
     for arg in std::env::args() {
         if arg == "--help" || arg == "-h" {
@@ -28,21 +26,9 @@ fn main() {
         }
         if arg == "--anime" || arg == "-a" {
             anime = true;
-            //look at the next argument and see if it is a search term
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                if !arg.starts_with("-") {
-                    search = arg;
-                }
-            }
         }
         if arg == "--ln" || arg == "-l" {
             ln = true;
-            //if let Some(arg) = std::env::args().nth(count + 1)  and that arg does not start with a '-' set search to that arg
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                if !arg.starts_with("-") {
-                    search = arg;
-                }
-            }
         }
         if arg == "--chapter" || arg == "-c" {
             if let Some(arg) = std::env::args().nth(count + 1) {
@@ -74,7 +60,8 @@ fn main() {
         std::process::exit(0);
     }
     if ln == true {
-        ln_read(&search, chapter);
+        //ln_read(&search, chapter);
+        _ = ln_ui(chapter);
     } else if anime == true {
         //anime_stream(search, episode, resume);
         _ = anime_ui();
@@ -83,36 +70,11 @@ fn main() {
     }
 }
 
-fn page_selector(ln_id: &str, selected_page: u32) -> String {
-    get_ln_next_page(ln_id, &selected_page.to_string())
-}
-
 fn print_help() {
     println!("anime:\t\t{}", format_args!("{}", "-a --anime".red()));
-    println!(
-        "{}",
-        "after this^^^ argument you can enter a search term".green()
-    );
-    println!("{}", "for exaple kami -a \"one piece\"");
     //print blank line
-    println!("");
-    println!("episode:\t{}", format_args!("{}", "-e --episode".red()));
-    println!(
-        "{}",
-        "after this^^^ argument you can enter a chapter number".green()
-    );
-    println!("{}", "for exaple kami -c 200");
-    //print blank line
-    println!("");
-    println!("resume:\t\t{}", format_args!("{}", "-r --resume".red()));
-    println!("{}", "only works with anime".green());
     println!("");
     println!("light novel:\t{}", format_args!("{}", "-l --ln".red()));
-    println!(
-        "{}",
-        "after this^^^ argument you can enter a search term".green()
-    );
-    println!("{}", "for exaple kami -l \"one piece\"");
     //print blank line
     println!("");
     println!("chapter:\t{}", format_args!("{}", "-c --chapter".red()));
