@@ -104,7 +104,7 @@ impl<'a> App {
     }
 }
 
-pub fn anime_ui() -> Result<(), Box<dyn Error>> {
+pub fn anime_ui(token: String) -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -113,7 +113,8 @@ pub fn anime_ui() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // create app and run it
-    let app = App::default();
+    let mut app = App::default();
+    app.token = token;
     let res = run_app(&mut terminal, app);
 
     // restore terminal
@@ -134,7 +135,6 @@ pub fn anime_ui() -> Result<(), Box<dyn Error>> {
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     let mut ep_select = false;
-    app.token = get_token();
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 

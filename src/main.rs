@@ -12,6 +12,7 @@ use crate::anime::{
     scraper::{anime_ep_range, anime_link, anime_names},
     trackers::*,
 };
+use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
 fn main() {
     let mut help = false;
@@ -64,7 +65,9 @@ fn main() {
         _ = ln_ui(chapter);
     } else if anime == true {
         //anime_stream(search, episode, resume);
-        _ = anime_ui();
+
+        let token = get_token();
+        _ = anime_ui(token);
     } else {
         println!("Invalid argument");
     }
