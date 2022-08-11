@@ -136,6 +136,7 @@ pub fn anime_ui(token: String) -> Result<(), Box<dyn Error>> {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     let mut ep_select = false;
     loop {
+        terminal.clear()?;
         terminal.draw(|f| ui(f, &mut app))?;
 
         if let Event::Key(key) = event::read()? {
