@@ -164,6 +164,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .unwrap()
                                 .to_string();
                             let ep_range = anime_ep_range(&app.title);
+                            app.title = app.title.replace("tv-", "");
+                            app.title = app.title.replace("dub", "");
                             app.anime_id = get_anime_id(&app.title);
                             app.messages.items.clear();
                             app.progress =
