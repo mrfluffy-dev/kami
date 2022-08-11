@@ -1,6 +1,6 @@
 use crate::open_video;
 use crate::{anime_ep_range, anime_link, anime_names};
-use crate::{get_anime_id, get_token, get_user_anime_progress, update_anime_progress};
+use crate::{get_anime_id, get_user_anime_progress, update_anime_progress};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -166,8 +166,18 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             let ep_range = anime_ep_range(&app.title);
                             let title = app.title.replace("tv-", "");
                             let title = title.replace("dub", "");
-                            let title = title.replace("movie", "");
-                            app.anime_id = get_anime_id(&title);
+                            //if title contains "movie" then remove movie if it contains "movie-*" then remove movie-*
+                            let title = if title.contains("movie-") {
+                                //find the index of "movie"
+                                let index = title.find("movie-").unwrap();
+                                //remove "movie-*"
+                                title.replace(&title[index..index + 7], "")
+                            } else if title.contains("movie") {
+                                title.replace("movie", "")
+                            } else {
+                                title
+                            };
+                            app.anime_id = get_anime_id(&title.replace("-", " "));
                             app.messages.items.clear();
                             app.progress =
                                 get_user_anime_progress(app.anime_id, app.token.as_str());
