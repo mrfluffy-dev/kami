@@ -141,7 +141,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
         if let Event::Key(key) = event::read()? {
             match app.input_mode {
                 InputMode::Normal => match key.code {
-                    KeyCode::Char('o') => {
+                    KeyCode::Char('i') => {
                         app.input_mode = InputMode::Editing;
                     }
                     KeyCode::Char('q') => {
@@ -173,10 +173,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 get_user_anime_progress(app.anime_id, app.token.as_str());
                             //set app.messages.state.selected to app.progress
                             app.messages.state.select(Some(app.progress as usize));
-                            for ep in 1..ep_range {
-                                app.messages.push(format!("Episode {}", ep));
+                            if ep_range == 1 {
+                                let link = anime_link(&app.title, 1);
+                                open_video(link);
+                            } else {
+                                for ep in 1..ep_range {
+                                    app.messages.push(format!("Episode {}", ep));
+                                }
+                                ep_select = true;
                             }
-                            ep_select = true;
                         } else {
                             let selected = app.messages.state.selected();
                             app.ep = app
@@ -250,7 +255,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 Span::raw("Press "),
                 Span::styled("q", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to exit, "),
-                Span::styled("o", Style::default().add_modifier(Modifier::BOLD)),
+                Span::styled("i", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(" to search."),
             ],
             Style::default().add_modifier(Modifier::RAPID_BLINK),
