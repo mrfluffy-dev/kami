@@ -167,6 +167,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             let ep_range = anime_ep_range(&app.title);
                             let title = app.title.replace("tv-", "");
                             let title = title.replace("dub", "");
+                            let title = title.replace("-uncensored", "");
                             //if title contains "movie" then remove movie if it contains "movie-*" then remove movie-*
                             let title = if title.contains("movie-") {
                                 //find the index of "movie"
