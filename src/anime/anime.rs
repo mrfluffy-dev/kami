@@ -189,7 +189,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 let link = anime_link(&app.title, 1);
                                 open_video(link);
                             } else {
-                                for ep in 1..ep_range {
+                                for ep in 1..ep_range + 1 {
                                     app.messages.push(format!("Episode {}", ep));
                                 }
                                 ep_select = true;
