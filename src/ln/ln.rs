@@ -151,7 +151,6 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
     let mut chapter_select = false;
 
     loop {
-        terminal.clear()?;
         terminal.draw(|f| ui(f, &mut app))?;
         if let Event::Key(key) = event::read()? {
             match app.input_mode {
