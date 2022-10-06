@@ -31,7 +31,7 @@ pub fn get_ep_location(url: &str) -> String {
 }
 
 pub fn anime_names(query: String) -> Vec<String> {
-    let url = format!("https://www2.gogoanime.ee//search.html?keyword={}", query);
+    let url = format!("https://gogoanime.dk//search.html?keyword={}", query);
     //relpace all spaces with %20
     let url = url.replace(' ', "%20");
     let html = get_anime_html(&url);
@@ -46,7 +46,7 @@ pub fn anime_names(query: String) -> Vec<String> {
 }
 
 pub fn anime_ep_range(anime_name: &str) -> u16 {
-    let url = format!("https://www2.gogoanime.ee/category/{}", anime_name);
+    let url = format!("https://gogoanime.dk/category/{}", anime_name);
     let re = Regex::new(r#"(?m)\s<a href="\#" class="active" ep_start = (.*?)</a>"#).unwrap();
     let episodes = re
         .captures_iter(&get_anime_html(&url))
