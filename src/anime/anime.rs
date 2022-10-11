@@ -168,6 +168,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             if ep_range == 1 {
                                 let link = anime_link(&app.title, 1);
                                 open_video((link.0, link.1));
+                                update_anime_progress(app.anime_id, 1, app.token.as_str());
                             } else {
                                 for ep in 1..ep_range + 1 {
                                     app.messages.push(format!("Episode {}", ep));
