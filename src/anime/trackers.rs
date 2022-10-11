@@ -29,10 +29,10 @@ pub fn get_token() -> String {
     token
 }
 
-pub fn get_anime_id(anime: &str) -> i32 {
+pub fn get_anime_id(mal_id: i32) -> i32 {
     const QUERY: &str = "
-query ($id: Int, $search: String) {
-    Media (id: $id, search: $search, type: ANIME) {
+query ($id: Int, $search: Int) {
+    Media (id: $id, idMal: $search, type: ANIME) {
         id
         title {
             native
@@ -45,7 +45,7 @@ query ($id: Int, $search: String) {
     let json = json!({
         "query": QUERY,
         "variables": {
-            "search": anime,
+            "search": mal_id
         }
     });
     let resp = Request::builder()
@@ -58,7 +58,6 @@ query ($id: Int, $search: String) {
         .send()
         .unwrap()
         .text();
-    //println!("{}", resp);
     let regex = regex::Regex::new(r#"id":(.*?),"#).unwrap();
     let resp: String = resp.as_ref().unwrap().to_string();
     let id = regex

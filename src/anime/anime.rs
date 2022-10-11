@@ -1,5 +1,6 @@
+use crate::helpers::name_ranker::string_sumularity_ranker;
 use crate::open_video;
-use crate::{anime_ep_range, anime_link, anime_names};
+use crate::{anime_ep_range, anime_info, anime_link, anime_names};
 use crate::{get_anime_id, get_user_anime_progress, update_anime_progress};
 
 use crossterm::{
@@ -87,6 +88,7 @@ struct App {
     progress: i32,
     anime_id: i32,
     token: String,
+    anime_mal_info: Vec<(String, String)>,
 }
 
 impl<'a> App {
@@ -100,6 +102,7 @@ impl<'a> App {
             progress: 0,
             anime_id: 0,
             token: String::new(),
+            anime_mal_info: Vec::new(),
         }
     }
 }
@@ -157,33 +160,21 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     KeyCode::Enter => {
                         if ep_select == false {
                             let selected = app.messages.state.selected();
-                            app.title = app
-                                .messages
-                                .iter()
-                                .nth(selected.unwrap())
-                                .unwrap()
-                                .to_string();
+                            let gogo = app.messages.items[selected.unwrap()].clone();
+                            app.anime_mal_info = anime_info(gogo.clone());
+                            let mut animixplay = Vec::new();
+                            //for each app.anime_mal_info.0 add to animixplay
+                            for i in 0..app.anime_mal_info.len() {
+                                animixplay.push(app.anime_mal_info[i].0.as_str());
+                            }
+                            let simular = string_sumularity_ranker(animixplay, &gogo);
+                            app.title = simular.1.to_string();
                             let ep_range = anime_ep_range(&app.title);
-                            let title = app.title.replace("tv-", "");
-                            let title = title.replace("dub", "");
-                            let title = title.replace("-uncensored", "");
-                            //if title contains "movie" then remove movie if it contains "movie-*" then remove movie-*
-                            let title = if title.contains("movie-") {
-                                //find the index of "movie"
-                                let index = title.find("movie-").unwrap();
-                                //remove "movie-*"
-                                title.replace(&title[index..index + 7], "")
-                            } else if title.contains("movie") {
-                                title.replace("movie", "")
-                            } else {
-                                title
-                            };
-
-                            app.anime_id = get_anime_id(&title.replace("-", " "));
+                            let mel_id = app.anime_mal_info[simular.0].1.parse::<i32>().unwrap();
+                            app.anime_id = get_anime_id(mel_id);
                             app.messages.items.clear();
                             app.progress =
                                 get_user_anime_progress(app.anime_id, app.token.as_str());
-                            //set app.messages.state.selected to app.progress
                             app.messages.state.select(Some(app.progress as usize));
                             if ep_range == 1 {
                                 let link = anime_link(&app.title, 1);
@@ -221,8 +212,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         let anime_list = anime_names(app.input.drain(..).collect());
                         app.messages.items.clear();
                         for anime in anime_list {
-                            app.messages.push(anime);
+                            app.messages.push(anime.to_string());
                         }
+
                         ep_select = false;
                         app.input_mode = InputMode::Normal;
                     }
