@@ -1,6 +1,5 @@
-use crate::helpers::name_ranker::string_sumularity_ranker;
 use crate::open_video;
-use crate::{anime_ep_range, anime_info, anime_link, anime_names};
+use crate::{anime_ep_range, anime_link, anime_names, get_mal_id};
 use crate::{get_anime_id, get_user_anime_progress, update_anime_progress};
 
 use crossterm::{
@@ -88,7 +87,6 @@ struct App {
     progress: i32,
     anime_id: i32,
     token: String,
-    anime_mal_info: Vec<(String, String)>,
 }
 
 impl<'a> App {
@@ -102,7 +100,6 @@ impl<'a> App {
             progress: 0,
             anime_id: 0,
             token: String::new(),
-            anime_mal_info: Vec::new(),
         }
     }
 }
@@ -160,17 +157,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     KeyCode::Enter => {
                         if ep_select == false {
                             let selected = app.messages.state.selected();
-                            let gogo = app.messages.items[selected.unwrap()].clone();
-                            app.anime_mal_info = anime_info(gogo.clone());
-                            let mut animixplay = Vec::new();
-                            //for each app.anime_mal_info.0 add to animixplay
-                            for i in 0..app.anime_mal_info.len() {
-                                animixplay.push(app.anime_mal_info[i].0.as_str());
-                            }
-                            let simular = string_sumularity_ranker(animixplay, &gogo);
-                            app.title = simular.1.to_string();
+                            app.title = app.messages.items[selected.unwrap()].clone();
                             let ep_range = anime_ep_range(&app.title);
-                            let mel_id = app.anime_mal_info[simular.0].1.parse::<i32>().unwrap();
+                            let mel_id = get_mal_id(&app.title);
                             app.anime_id = get_anime_id(mel_id);
                             app.messages.items.clear();
                             app.progress =
@@ -178,7 +167,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             app.messages.state.select(Some(app.progress as usize));
                             if ep_range == 1 {
                                 let link = anime_link(&app.title, 1);
-                                open_video(link);
+                                open_video((link.0, link.1));
                             } else {
                                 for ep in 1..ep_range + 1 {
                                     app.messages.push(format!("Episode {}", ep));
@@ -196,7 +185,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .parse::<u64>()
                                 .unwrap();
                             let link = anime_link(&app.title, app.ep);
-                            open_video(link);
+                            open_video((link.0, link.1));
                             update_anime_progress(
                                 app.anime_id,
                                 app.ep as usize,

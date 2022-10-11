@@ -45,28 +45,6 @@ pub fn anime_names(query: String) -> Vec<String> {
     anime_list
 }
 
-//get anime name and id using net\\\/anime\\\/([0-9]*)\\\/([^"]*)"
-pub fn anime_info(query: String) -> Vec<(String, String)> {
-    let url = format!(
-        "https://api.jikan.moe/v4/anime?q={}&limit=18&sfw=true",
-        query
-    );
-    //relpace all spaces with %20
-    let url = url.replace(' ', "%20");
-    let html = get_anime_html(&url);
-    let re = Regex::new(r#"(?m)net\\/anime\\/([0-9]*)\\/([^"]*)"#).unwrap();
-    let mut anime_list: Vec<(String, String)> = Vec::new();
-    for cap in re.captures_iter(&html) {
-        anime_list.push((
-            cap.get(2).unwrap().as_str().trim().to_string(),
-            cap.get(1).unwrap().as_str().trim().to_string(),
-        ));
-    }
-    anime_list.dedup();
-
-    anime_list
-}
-
 pub fn anime_ep_range(anime_name: &str) -> u16 {
     let url = format!(
         "https://gogoanime.dk/category/{}",
@@ -88,6 +66,22 @@ pub fn anime_ep_range(anime_name: &str) -> u16 {
         .unwrap_or("0")
         .parse::<u16>()
         .unwrap_or(0)
+}
+
+pub fn get_mal_id(title: &str) -> i32 {
+    let url = format!("https://animixplay.to/v1/{}", title);
+    let html = get_anime_html(&url);
+    let re = Regex::new(r#"(?m)var malid = '([0-9]*)'"#).unwrap();
+    let mal_id = re
+        .captures_iter(&html)
+        .next()
+        .unwrap()
+        .get(1)
+        .unwrap()
+        .as_str()
+        .trim()
+        .to_string();
+    mal_id.parse::<i32>().unwrap_or(0)
 }
 
 pub fn anime_link(title: &str, ep: u64) -> (String, String) {
