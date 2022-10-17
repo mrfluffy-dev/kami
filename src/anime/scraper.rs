@@ -45,30 +45,7 @@ pub fn anime_names(query: String) -> Vec<String> {
     anime_list
 }
 
-pub fn anime_ep_range(anime_name: &str) -> u16 {
-    let url = format!(
-        "https://gogoanime.dk/category/{}",
-        anime_name.replace("__", "-").replace("_", "-")
-    );
-    let re = Regex::new(r#"(?m)\s<a href="\#" class="active" ep_start = (.*?)</a>"#).unwrap();
-    let episodes = re
-        .captures_iter(&get_anime_html(&url))
-        .next()
-        .unwrap()
-        .get(1)
-        .unwrap()
-        .as_str()
-        .trim()
-        .to_string();
-    episodes
-        .split('-')
-        .nth(1)
-        .unwrap_or("0")
-        .parse::<u16>()
-        .unwrap_or(0)
-}
-
-pub fn get_mal_id(title: &str) -> i32 {
+pub fn get_anime_info(title: &str) -> (i32, u16) {
     let url = format!("https://animixplay.to/v1/{}", title);
     let html = get_anime_html(&url);
     let re = Regex::new(r#"(?m)var malid = '([0-9]*)'"#).unwrap();
@@ -81,7 +58,21 @@ pub fn get_mal_id(title: &str) -> i32 {
         .as_str()
         .trim()
         .to_string();
-    mal_id.parse::<i32>().unwrap_or(0)
+
+    let re = Regex::new(r#"(?m)"eptotal":([\d]+)"#).unwrap();
+    let episodes = re
+        .captures_iter(&html)
+        .next()
+        .unwrap()
+        .get(1)
+        .unwrap()
+        .as_str()
+        .trim()
+        .to_string();
+    (
+        mal_id.parse::<i32>().unwrap_or(0),
+        episodes.parse::<u16>().unwrap_or(0),
+    )
 }
 
 pub fn anime_link(title: &str, ep: u64) -> (String, String) {

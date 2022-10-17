@@ -9,7 +9,7 @@ use ln::ln::ln_ui;
 
 use crate::anime::{
     player::open_video,
-    scraper::{anime_ep_range, anime_link, anime_names, get_mal_id},
+    scraper::{anime_link, anime_names},
     trackers::*,
 };
 use crate::get_token;
