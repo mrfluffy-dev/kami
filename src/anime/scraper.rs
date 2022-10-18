@@ -79,23 +79,36 @@ pub fn anime_link(title: &str, ep: u64) -> (String, String) {
     let url = format!("https://animixplay.to/v1/{}", title);
     let html = get_anime_html(&url);
     let re = Regex::new(r#"(?m)\?id=([^&]+)"#).unwrap();
-    let id1 = re
-        .captures_iter(&html)
-        .nth(ep as usize - 1)
-        .unwrap()
-        .get(1)
-        .unwrap()
-        .as_str()
-        .trim()
-        .to_string();
-    let title = format!("{} Episode {}", title.replace('-', " "), ep);
-    let encoded_id1 = encode(&id1);
-    let anime_id = encode(format!("{}LTXs3GrU8we9O{}", id1, encoded_id1));
-    let html = format!("https://animixplay.to/api/live{}", anime_id);
-    let url = get_ep_location(&html);
-    let url = url.split('#').nth(1).unwrap();
-    let url = std::str::from_utf8(&decode(url).unwrap())
-        .unwrap()
-        .to_string();
-    (url, title)
+    let id1 = match re.captures_iter(&html).nth(ep as usize - 1) {
+        Some(cap) => cap.get(1).unwrap().as_str().trim().to_string(),
+        None => "".to_string(),
+    };
+
+    if id1 != "" {
+        let title = format!("{} Episode {}", title.replace('-', " "), ep);
+        let encoded_id1 = encode(&id1);
+        let anime_id = encode(format!("{}LTXs3GrU8we9O{}", id1, encoded_id1));
+        let html = format!("https://animixplay.to/api/live{}", anime_id);
+        let url = get_ep_location(&html);
+        let url = url.split('#').nth(1).unwrap();
+        let url = std::str::from_utf8(&decode(url).unwrap())
+            .unwrap()
+            .to_string();
+        return (url, title);
+    } else {
+        let re = Regex::new(r#"(?m)r\.html#(.*)""#).unwrap();
+        let id2 = re
+            .captures_iter(&html)
+            .next()
+            .unwrap()
+            .get(1)
+            .unwrap()
+            .as_str()
+            .trim()
+            .to_string();
+        let url = decode(id2).unwrap();
+        let url = std::str::from_utf8(&url).unwrap().to_string();
+        let title = format!("{} Episode {}", title.replace('-', " "), ep);
+        return (url, title);
+    }
 }
