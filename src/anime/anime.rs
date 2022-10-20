@@ -188,11 +188,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .unwrap();
                             let link = anime_link(&app.title, app.ep);
                             open_video((link.0, link.1));
-                            update_anime_progress(
-                                app.anime_id,
-                                app.ep as usize,
-                                app.token.as_str(),
-                            );
+                            if app.ep > app.progress as u64 {
+                                update_anime_progress(
+                                    app.anime_id,
+                                    app.ep as usize,
+                                    app.token.as_str(),
+                                );
+                                app.progress = app.ep as i32;
+                            }
                         }
                     }
                     _ => {}
