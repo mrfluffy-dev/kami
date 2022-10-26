@@ -13,17 +13,14 @@ pub fn get_token() -> String {
     if !token_path.exists() {
         //create empty file
         fs::File::create(&token_path).unwrap();
-    } else {
-        //read token from file
-        let token = fs::read_to_string(&token_path).unwrap();
-        if token.is_empty() {
-            println!("please go to the below link and copy and past the token below");
-            println!(
-                "https://anilist.co/api/v2/oauth/authorize?client_id=9121&response_type=token"
-            );
-            let token = string_input("token: ");
-            fs::write(&token_path, token).unwrap();
-        }
+    }
+    //read token from file
+    let token = fs::read_to_string(&token_path).unwrap();
+    if token.is_empty() {
+        println!("please go to the below link and copy and past the token below");
+        println!("https://anilist.co/api/v2/oauth/authorize?client_id=9121&response_type=token");
+        let token = string_input("token: ");
+        fs::write(&token_path, token).unwrap();
     }
     let token = fs::read_to_string(&token_path).unwrap();
     token
