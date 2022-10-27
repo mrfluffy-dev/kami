@@ -77,7 +77,7 @@ git clone https://github.com/mrfluffy-dev/kami.git && cd kami
    #+begin_src shell
 cargo build --release
    #+end_src
-7. copy kami to path
+7. copy kami to path (for this to work, you need to use git bash and you need to run git bash in administrator mode0
    #+begin_src
 cp target/release/kami.exe /usr/bin/kami
    #+end_src
