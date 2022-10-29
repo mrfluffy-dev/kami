@@ -115,7 +115,7 @@ impl<'a> App {
 
 pub fn ln_ui(chapter: u32) -> Result<(), Box<dyn Error>> {
     // setup terminal
-    let _ = get_json();
+    let _ = get_ln_json();
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;

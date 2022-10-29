@@ -2,7 +2,7 @@ use serde_json;
 use std::fs;
 //
 //
-pub fn get_json() -> serde_json::Value {
+pub fn get_ln_json() -> serde_json::Value {
     let config_path = dirs::config_dir().unwrap().join("kami");
     if !config_path.exists() {
         fs::create_dir_all(&config_path).unwrap();
@@ -43,7 +43,7 @@ pub fn write_ln_progress(title: &str, current_page: &u32, selected: &usize) {
 }
 
 pub fn get_ln_progress(title: &str) -> (u32, usize) {
-    let json = get_json();
+    let json = get_ln_json();
     let current_page = json[title]["current_page"].as_u64().unwrap_or(1) as u32;
     let selected = json[title]["selected"].as_u64().unwrap_or(0) as usize;
     (current_page, selected)

@@ -1,6 +1,9 @@
 use crate::open_video;
 use crate::{anime_link, anime_names};
-use crate::{get_anime_id, get_user_anime_progress, update_anime_progress};
+use crate::{
+    get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
+    write_an_progress,
+};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -158,18 +161,28 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     //if KeyCode::Enter => {
                     KeyCode::Enter => {
                         if ep_select == false {
+                            app.progress = 0;
                             let selected = app.messages.state.selected();
                             app.title = app.messages.items[selected.unwrap()].clone();
                             let anime_info = get_anime_info(&app.title);
                             app.anime_id = get_anime_id(anime_info.0);
                             app.messages.items.clear();
-                            app.progress =
-                                get_user_anime_progress(app.anime_id, app.token.as_str());
-                            app.messages.state.select(Some(app.progress as usize));
+                            if app.token == "local" || app.anime_id == 0 {
+                                app.progress = get_an_progress(&app.title) as i32;
+                                app.messages.state.select(Some(app.progress as usize));
+                            } else {
+                                app.progress =
+                                    get_user_anime_progress(app.anime_id, app.token.as_str());
+                                app.messages.state.select(Some(app.progress as usize));
+                            }
                             if anime_info.1 == 1 {
                                 let link = anime_link(&app.title, 1);
                                 open_video((link.0, link.1));
-                                update_anime_progress(app.anime_id, 1, app.token.as_str());
+                                if app.token == "local" || app.anime_id == 0 {
+                                    write_an_progress(&app.title, &1);
+                                } else {
+                                    update_anime_progress(app.anime_id, 1, app.token.as_str());
+                                }
                             } else {
                                 for ep in 1..anime_info.1 + 1 {
                                     app.messages.push(format!("Episode {}", ep));
@@ -189,11 +202,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             let link = anime_link(&app.title, app.ep);
                             open_video((link.0, link.1));
                             if app.ep > app.progress as u64 {
-                                update_anime_progress(
-                                    app.anime_id,
-                                    app.ep as usize,
-                                    app.token.as_str(),
-                                );
+                                if app.token == "local" || app.anime_id == 0 {
+                                    write_an_progress(&app.title, &app.ep);
+                                } else {
+                                    update_anime_progress(
+                                        app.anime_id,
+                                        app.ep as usize,
+                                        app.token.as_str(),
+                                    );
+                                }
                                 app.progress = app.ep as i32;
                             }
                         }
