@@ -1,13 +1,13 @@
 use crate::ln::open_text::*;
 use crate::ln::scraper::*;
-use std::fs::File;
-use std::io::Write;
-
+use crate::ln::tracker::*;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use std::fs::File;
+use std::io::Write;
 use std::{error::Error, io};
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -115,6 +115,7 @@ impl<'a> App {
 
 pub fn ln_ui(chapter: u32) -> Result<(), Box<dyn Error>> {
     // setup terminal
+    let _ = get_json();
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
@@ -203,6 +204,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .nth(selected.unwrap())
                                 .unwrap()
                                 .to_string();
+                            if app.current_page_number == 1 {
+                                let progress = get_ln_progress(&app.title);
+                                app.current_page_number = progress.0;
+                                app.messages.state.select(Some(progress.1));
+                            }
                             let link = app.ln_links[selected.unwrap()].to_string();
                             let html = get_html(&link);
                             app.ln_id = get_ln_id(&html).to_string();
@@ -242,6 +248,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             };
                             terminal.clear()?;
                             let _ = open_bat();
+                            write_ln_progress(
+                                &app.title,
+                                &app.current_page_number,
+                                &app.messages.state.selected().unwrap(),
+                            );
                             terminal.clear()?;
                         }
                     }
