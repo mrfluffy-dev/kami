@@ -1,3 +1,4 @@
+use isahc::config::Configurable;
 use isahc::{ReadResponseExt, Request, RequestExt};
 use regex::Regex;
 
@@ -9,18 +10,17 @@ use crate::helpers::fixing_text::fix_html_encoding;
 pub fn get_html(url: &str) -> String {
     let req = Request::builder()
         .uri(url)
-        .header(
-            "user-agent",
-            "Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0",
-        )
+        .redirect_policy(isahc::config::RedirectPolicy::Follow)
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36")
         .body(())
         .unwrap();
-
-    req.send().unwrap().text().unwrap()
+    let mut res = req.send().unwrap();
+    let html = res.text().unwrap();
+    html
 }
 
 //using isahc::prelude::* make a php reqest to get the next page of the ln
-pub fn get_ln_next_page(ln_id: &str, page: &str) -> String {
+pub fn get_ln_next_page(ln_id: &str, page: &u32) -> String {
     let url = "https://readlightnovels.net/wp-admin/admin-ajax.php".to_string();
     let form = format!(
         "action=tw_ajax&type=pagination&id={}.html&page={}",
@@ -30,14 +30,15 @@ pub fn get_ln_next_page(ln_id: &str, page: &str) -> String {
     let req = Request::builder()
         .method("POST")
         .uri(url)
+        .redirect_policy(isahc::config::RedirectPolicy::Follow)
         .header(
             "user-agent",
             "Mozilla/5.0 (X11; Linux x86_64; rv:99.0) Gecko/20100101 Firefox/100.0",
         )
         .body(form)
         .unwrap();
-
-    req.send().unwrap().text().unwrap()
+    let resp = req.send().unwrap().text().unwrap();
+    resp
 }
 
 pub fn get_full_text(chapter_url: &str) -> String {
