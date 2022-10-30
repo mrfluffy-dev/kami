@@ -168,8 +168,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         if app.current_page_number > 0 {
                             app.current_page_number -= 1;
                         }
-                        app.current_page =
-                            get_ln_next_page(&app.ln_id, &(app.current_page_number.to_string()));
+                        app.current_page = get_ln_next_page(&app.ln_id, &app.current_page_number);
                         app.ln_chapters = get_ln_chapters(&app.current_page);
                         app.ln_chapters_links = get_ln_chapters_urls(&app.current_page);
                         app.messages.items.clear();
@@ -177,6 +176,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             app.messages.push(chapter.to_string());
                         }
                     }
+
                     KeyCode::Down => app.messages.next(),
                     KeyCode::Char('j') => app.messages.next(),
                     KeyCode::Up => app.messages.previous(),
@@ -185,8 +185,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         if app.current_page_number < app.last_page.parse::<u32>().unwrap() {
                             app.current_page_number += 1;
                         }
-                        app.current_page =
-                            get_ln_next_page(&app.ln_id, &(app.current_page_number.to_string()));
+                        app.current_page = get_ln_next_page(&app.ln_id, &app.current_page_number);
                         app.ln_chapters = get_ln_chapters(&app.current_page);
                         app.ln_chapters_links = get_ln_chapters_urls(&app.current_page);
                         app.messages.items.clear();
@@ -213,10 +212,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             let html = get_html(&link);
                             app.ln_id = get_ln_id(&html).to_string();
                             app.last_page = get_ln_last_page(&html);
-                            app.current_page = get_ln_next_page(
-                                &app.ln_id.to_string(),
-                                &app.current_page_number.to_string(),
-                            );
+                            app.current_page =
+                                get_ln_next_page(&app.ln_id.to_string(), &app.current_page_number);
                             app.ln_chapters = get_ln_chapters(&app.current_page);
                             app.ln_chapters_links = get_ln_chapters_urls(&app.current_page);
                             app.messages.items.clear();
