@@ -21,6 +21,7 @@ fn main() {
     let mut chapter: u32 = 0;
     //let search = option string
     let mut count = 0;
+    let mut provider: String = "gogo".to_string();
     for arg in std::env::args() {
         if arg == "--help" || arg == "-h" {
             help = true;
@@ -28,6 +29,23 @@ fn main() {
         if arg == "--anime" || arg == "-a" {
             anime = true;
         }
+        if arg == "--provider" || arg == "-r" {
+            if let Some(arg) = std::env::args().nth(count + 1) {
+                //get the next argument and see if it is = to gogo of vrv
+                if arg == "vrv" {
+                    provider = "vrv".to_string();
+                    count += 1;
+                } else if arg == "gogo" {
+                    provider = "gogo".to_string();
+                    count += 1;
+                } else {
+                    provider = "gogo".to_string();
+                }
+            } else {
+                provider = "vrv".to_string();
+            }
+        }
+
         if arg == "--ln" || arg == "-l" {
             ln = true;
         }
@@ -67,7 +85,7 @@ fn main() {
         //anime_stream(search, episode, resume);
 
         let token = get_token();
-        _ = anime_ui(token);
+        _ = anime_ui(token, provider);
     } else {
         println!("Invalid argument");
     }
@@ -87,6 +105,21 @@ fn print_help() {
     );
     println!("{}", "for exaple kami -c 200");
     //print blank line
+    println!("");
+    println!("provider:\t{}", format_args!("{}", "-r --provider".red()));
+    println!(
+        "{}",
+        "after this^^^ argument you can enter a provider".green()
+    );
+    println!(
+        "if no provider is entered it will default to {}",
+        "vrv".green()
+    );
+    println!(
+        "if the -r argument is not used it will default to {}",
+        "gogo".green()
+    );
+    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
     println!("");
     println!("help:\t\t{}", format_args!("{}", "-h --help".red()));
     //kill the program

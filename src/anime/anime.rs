@@ -92,6 +92,7 @@ struct App {
     progress: i32,
     anime_id: i32,
     token: String,
+    provider: String,
 }
 
 impl<'a> App {
@@ -105,11 +106,12 @@ impl<'a> App {
             progress: 0,
             anime_id: 0,
             token: String::new(),
+            provider: String::new(),
         }
     }
 }
 
-pub fn anime_ui(token: String) -> Result<(), Box<dyn Error>> {
+pub fn anime_ui(token: String, provider: String) -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -120,6 +122,7 @@ pub fn anime_ui(token: String) -> Result<(), Box<dyn Error>> {
     // create app and run it
     let mut app = App::default();
     app.token = token;
+    app.provider = provider;
     let res = run_app(&mut terminal, app);
 
     // restore terminal
@@ -176,7 +179,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 app.messages.state.select(Some(app.progress as usize));
                             }
                             if anime_info.1 == 1 {
-                                let link = anime_link(&app.title, 1);
+                                let link = anime_link(&app.title, 1, &app.provider);
                                 open_video((link.0, link.1));
                                 if app.token == "local" || app.anime_id == 0 {
                                     write_an_progress(&app.title, &1);
@@ -199,7 +202,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .replace("Episode ", "")
                                 .parse::<u64>()
                                 .unwrap();
-                            let link = anime_link(&app.title, app.ep);
+                            let link = anime_link(&app.title, app.ep, &app.provider);
                             open_video((link.0, link.1));
                             if app.ep > app.progress as u64 {
                                 if app.token == "local" || app.anime_id == 0 {
