@@ -112,7 +112,7 @@ pub fn anime_link(title: &str, ep: u64, provider: &str) -> (String, String) {
             let title = format!("{} Episode {}", title.replace('-', " "), ep);
             let encoded_id1 = encode(&id1);
             let anime_id = encode(format!("{}LTXs3GrU8we9O{}", id1, encoded_id1));
-            let html = format!("https://animixplay.to/api/live{}", anime_id);
+            let html = format!("https://animixplay.to/api/cW9{}", anime_id);
             let url = get_ep_location(&html);
             let url = url.split('#').nth(1).unwrap();
             let url = std::str::from_utf8(&decode(url).unwrap())
