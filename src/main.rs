@@ -8,7 +8,7 @@ use colored::Colorize;
 use ln::ln::ln_ui;
 
 use crate::anime::{
-    player::open_video,
+    player::{open_cast, open_video},
     scraper::{anime_link, anime_names},
     trackers::*,
 };
@@ -22,6 +22,7 @@ fn main() {
     //let search = option string
     let mut count = 0;
     let mut provider: String = "gogo".to_string();
+    let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
         if arg == "--help" || arg == "-h" {
             help = true;
@@ -43,6 +44,13 @@ fn main() {
                 }
             } else {
                 provider = "vrv".to_string();
+            }
+        }
+        if arg == "--cast" || arg == "-C" {
+            if let Some(arg) = std::env::args().nth(count + 1) {
+                cast = (true, String::from(arg))
+            } else {
+                println!("{}", "please provide a ip address".red())
             }
         }
 
@@ -85,7 +93,7 @@ fn main() {
         //anime_stream(search, episode, resume);
 
         let token = get_token();
-        _ = anime_ui(token, provider);
+        _ = anime_ui(token, provider, cast);
     } else {
         println!("Invalid argument");
     }
@@ -94,6 +102,11 @@ fn main() {
 fn print_help() {
     println!("anime:\t\t{}", format_args!("{}", "-a --anime".red()));
     //print blank line
+    println!("");
+    println!(
+        "cast:\t\t{}",
+        format_args!("{} {}", "-C --cast".red(), "<IP Adress>".green())
+    );
     println!("");
     println!("light novel:\t{}", format_args!("{}", "-l --ln".red()));
     //print blank line

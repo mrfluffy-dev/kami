@@ -1,9 +1,9 @@
-use crate::open_video;
 use crate::{anime_link, anime_names};
 use crate::{
     get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
     write_an_progress,
 };
+use crate::{open_cast, open_video};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -93,6 +93,7 @@ struct App {
     anime_id: i32,
     token: String,
     provider: String,
+    cast: (bool, String),
 }
 
 impl<'a> App {
@@ -107,11 +108,16 @@ impl<'a> App {
             anime_id: 0,
             token: String::new(),
             provider: String::new(),
+            cast: (false, "0".to_string()),
         }
     }
 }
 
-pub fn anime_ui(token: String, provider: String) -> Result<(), Box<dyn Error>> {
+pub fn anime_ui(
+    token: String,
+    provider: String,
+    cast: (bool, String),
+) -> Result<(), Box<dyn Error>> {
     // setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -123,6 +129,7 @@ pub fn anime_ui(token: String, provider: String) -> Result<(), Box<dyn Error>> {
     let mut app = App::default();
     app.token = token;
     app.provider = provider;
+    app.cast = cast;
     let res = run_app(&mut terminal, app);
 
     // restore terminal
@@ -180,7 +187,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                             }
                             if anime_info.1 == 1 {
                                 let link = anime_link(&app.title, 1, &app.provider);
-                                open_video((link.0, link.1));
+                                if !app.cast.0 {
+                                    open_video((link.0, link.1));
+                                } else {
+                                    open_cast((link.0, link.1), &app.cast.1)
+                                }
                                 if app.token == "local" || app.anime_id == 0 {
                                     write_an_progress(&app.title, &1);
                                 } else {
@@ -203,7 +214,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .parse::<u64>()
                                 .unwrap();
                             let link = anime_link(&app.title, app.ep, &app.provider);
-                            open_video((link.0, link.1));
+                            if !app.cast.0 {
+                                open_video((link.0, link.1));
+                            } else {
+                                open_cast((link.0, link.1), &app.cast.1)
+                            }
                             if app.ep > app.progress as u64 {
                                 if app.token == "local" || app.anime_id == 0 {
                                     write_an_progress(&app.title, &app.ep);
