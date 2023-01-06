@@ -1,4 +1,88 @@
 #+title: Readme
 #+OPTIONS: toc:2
-* And its broken
-I dont think I am going to fix it this was more a learning project for me anyway. Well now I know rust a bit better but thanks for trying out kami. have a blessed one.
+* Table of content
+1. [[#Why-use-kami][Why use kami]]
+2. [[#Dependencies][Dependencies]]
+3. [[#Install][Install]]
+   - [[#LinuxMac][Linux/mac]]
+   - [[#Windows][Windows]]
+4. [[#Honorable-mentions][Honorable mentions]]
+* Why use kami
+Well its a fast and easy way to watch anime and read light novels right in your terminal no need to open a browser.
+Also rust is fast as fuck boiiiii.
+It can keep your anime tracking up to date with anilist.
+* Dependencies
+1. [[https://github.com/sharkdp/bat][bat]]
+2. [[https://mpv.io/][mpv]]
+3. [[https://git-scm.com/][gitbash]](if on windows)
+I will be explaining how to install them.
+
+* Install
+** Linux/Mac
+1. install bat and mpv with your package manager(homebrew if on mac)
+2. Clone the repo for kami.
+   #+begin_src shell
+git clone https://github.com/mrfluffy-dev/kami.git && cd kami
+   #+end_src
+4. install [[https://www.rust-lang.org/tools/install][Rust]]
+5. Build kami using cargo.
+   #+begin_src shell
+cargo build --release
+   #+end_src
+6. Copy kami to your path.
+   #+begin_src shell
+cp target/release/kami /usr/local/bin/kami
+   #+end_src
+** Windows
+1. install scoop
+   #+begin_src shell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm get.scoop.sh | iex
+   #+end_src
+2. install git
+   #+begin_src shell
+scoop install git
+   #+end_src
+1. install mpv
+   #+begin_src shell
+scoop bucket add extras
+scoop install mpv
+   #+end_src
+2. install bat
+   #+begin_src shell
+scoop install bat
+   #+end_src
+3. install [[https://www.rust-lang.org/tools/install][Rust]]
+4. (Optional but I highly recommend it) adding bash to windows terminal.
+   1. install windows terminal from the Microsoft store.
+   2. open the terminal.
+   3. open settings.
+   4. click "Add a new profile"
+   5. click "New empty profile"
+   6. Click on "name" and rename it to "Git Bash"
+   7. Click on "Command line" and click "Browse..."
+   8. if you installed git using scoop then follow this(else the steps are mostly  the same just a different path)
+      navigate to ~C:\User\USERNAME\scoop\apps\git\2.37.1.windows.1\bin\bash.exe~
+      Where USERNAME is your username
+      note that the name ~2.37.1.windows.1~ might be slightly different on your system
+   9. click "Open"
+   10. Click "Starting directory" and uncheck "Use parent process directory"
+   11. Click "Save"
+   12. now you can open gitbash from windows terminal
+5. Clone the repo for kami
+    #+begin_src shell
+git clone https://github.com/mrfluffy-dev/kami.git && cd kami
+   #+end_src
+6. Build kami using cargo
+   #+begin_src shell
+cargo build --release
+   #+end_src
+7. copy kami to path (for this to work, you need to use git bash and you need to run git bash in administrator mode0
+   #+begin_src
+cp target/release/kami.exe /usr/bin/kami
+   #+end_src
+8. open kami by using ~kami~
+* Honorable mentions
+- [[https://github.com/pystardust/ani-cli][ani-cli]] Just a bunch of fucking nice people.
+- [[https://docs.rs/][rust docs]] Honestly its just so useful.
+- [[https://github.com/DemonKingSwarn/flix-cli][flix-cli]] For forcing me to make a release.
