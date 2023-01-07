@@ -66,10 +66,10 @@ pub fn get_anime_link(url: &str, episode: u64) -> String {
         episode
     );
     let html = get_anime_html(url);
-    let re = Regex::new(r#"iframe id="main-embed" src="https://yugen.to/e/(.*)=="#).unwrap();
+    let re = Regex::new(r#"iframe id="main-embed" src="https://yugen\.to/e/([^/]*)/"#).unwrap();
     let capture = re.captures(&html).unwrap();
     let id = &capture[1];
-    let id = format!("id={}%3D%3D&ac=0", id);
+    let id = format!("id={}%3D&ac=0", id);
     let json = get_post(&id);
     let re = Regex::new(r#"hls": \["(.*)","#).unwrap();
     let capture = re.captures(&json).unwrap();
