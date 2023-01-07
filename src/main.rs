@@ -7,11 +7,7 @@ use colored::Colorize;
 //use ln::ui::ln_ui;
 use ln::ln::ln_ui;
 
-use crate::anime::{
-    player::{open_cast, open_video},
-    scraper::{anime_link, anime_names},
-    trackers::*,
-};
+use crate::anime::{player::*, scraper::*, trackers::*};
 use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
 fn main() {
