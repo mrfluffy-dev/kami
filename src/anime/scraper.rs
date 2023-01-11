@@ -86,11 +86,11 @@ pub fn get_anime_link(url: &str, episode: u64) -> String {
     link.to_string()
 }
 
-pub fn get_image(url: &str) {
+pub fn get_image(url: &str, path: &str) {
     let url = url;
     let mut response = isahc::get(url).unwrap();
     let mut buffer = Vec::new();
     response.copy_to(&mut buffer).unwrap();
-    let mut file = File::create("/home/mrfluffy/.config/kami/temp.png").unwrap();
+    let mut file = File::create(path).unwrap();
     file.write_all(&buffer).unwrap();
 }

@@ -168,11 +168,12 @@ pub fn anime_ui(
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -> io::Result<()> {
     let mut ep_select = false;
     fn change_image(conf: &Config, app: &App) {
+        let config_path = dirs::config_dir().unwrap().join("kami");
+        let image_path = config_path.join("tmp.jpg");
         let selected = app.messages.state.selected();
         let image_url = app.animes.2[selected.unwrap()].clone();
-        get_image(&image_url);
-        print_from_file("/home/mrfluffy/.config/kami/temp.png", &conf)
-            .expect("Image printing failed.");
+        get_image(&image_url, &image_path.to_str().unwrap());
+        print_from_file(image_path, &conf).expect("Image printing failed.");
     }
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
