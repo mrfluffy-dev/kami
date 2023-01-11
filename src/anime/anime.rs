@@ -2,7 +2,7 @@ use crate::{
     get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
     write_an_progress,
 };
-use crate::{get_anime_link, get_animes};
+use crate::{get_anime_link, get_animes, get_image};
 use crate::{open_cast, open_video};
 
 use crossterm::{
@@ -20,6 +20,7 @@ use tui::{
     Frame, Terminal,
 };
 use unicode_width::UnicodeWidthStr;
+use viuer::{print_from_file, terminal_size, Config};
 
 use super::scraper::get_anime_info;
 
@@ -83,7 +84,7 @@ impl<T> StatefulList<T> {
 struct App {
     /// Current value of the input box
     input: String,
-    animes: (Vec<String>, Vec<String>),
+    animes: (Vec<String>, Vec<String>, Vec<String>),
     /// Current input mode
     input_mode: InputMode,
     /// History of recorded messages
@@ -102,7 +103,7 @@ impl<'a> App {
     fn default() -> App {
         App {
             input: String::new(),
-            animes: (Vec::new(), Vec::new()),
+            animes: (Vec::new(), Vec::new(), Vec::new()),
             input_mode: InputMode::Normal,
             messages: StatefulList::with_items(Vec::new()),
             title: String::new(),
@@ -134,7 +135,19 @@ pub fn anime_ui(
     app.token = token;
     app.provider = provider;
     app.cast = cast;
-    let res = run_app(&mut terminal, app);
+    let (term_width, _term_height) = terminal_size();
+    let width = 50;
+    let height = 24;
+    let conf = Config {
+        // set dimensions
+        x: (term_width - 33),
+        y: 2,
+        width: Some((width) as u32),
+        height: Some((height) as u32),
+        restore_cursor: true,
+        ..Default::default()
+    };
+    let res = run_app(&mut terminal, app, conf);
 
     // restore terminal
     disable_raw_mode()?;
@@ -152,8 +165,15 @@ pub fn anime_ui(
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -> io::Result<()> {
     let mut ep_select = false;
+    fn change_image(conf: &Config, app: &App) {
+        let selected = app.messages.state.selected();
+        let image_url = app.animes.2[selected.unwrap()].clone();
+        get_image(&image_url);
+        print_from_file("/home/mrfluffy/.config/kami/temp.png", &conf)
+            .expect("Image printing failed.");
+    }
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 
@@ -168,10 +188,22 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     }
                     KeyCode::Left => app.messages.unselect(),
                     KeyCode::Char('h') => app.messages.unselect(),
-                    KeyCode::Down => app.messages.next(),
-                    KeyCode::Char('j') => app.messages.next(),
-                    KeyCode::Up => app.messages.previous(),
-                    KeyCode::Char('k') => app.messages.previous(),
+                    KeyCode::Down => {
+                        app.messages.next();
+                        change_image(&conf, &app);
+                    }
+                    KeyCode::Char('j') => {
+                        app.messages.next();
+                        change_image(&conf, &app)
+                    }
+                    KeyCode::Up => {
+                        app.messages.previous();
+                        change_image(&conf, &app);
+                    }
+                    KeyCode::Char('k') => {
+                        app.messages.previous();
+                        change_image(&conf, &app)
+                    }
                     //if KeyCode::Enter => {
                     KeyCode::Enter => {
                         if ep_select == false {
@@ -286,11 +318,17 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .as_ref(),
         )
         .split(f.size());
+
     let block = Block::default()
         .borders(Borders::ALL)
         .title("kami")
         .border_type(BorderType::Rounded);
     f.render_widget(block, f.size());
+
+    let top_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(chunks[0]);
 
     let (msg, style) = match app.input_mode {
         InputMode::Normal => (
@@ -325,7 +363,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         })
         .collect();
     let messages = List::new(messages)
-        .block(Block::default().borders(Borders::ALL).title("list"))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("list")
+                .border_type(BorderType::Rounded),
+        )
         .style(Style::default().fg(Color::White))
         .highlight_style(
             Style::default()
@@ -333,7 +376,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol(">>");
-    f.render_stateful_widget(messages, chunks[0], &mut app.messages.state);
+    f.render_stateful_widget(messages, top_chunks[0], &mut app.messages.state);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title("info")
+        .border_type(BorderType::Rounded);
+    f.render_widget(block, top_chunks[1]);
 
     let mut text = Text::from(Spans::from(msg));
     text.patch_style(style);
