@@ -135,19 +135,7 @@ pub fn anime_ui(
     app.token = token;
     app.provider = provider;
     app.cast = cast;
-    let (term_width, _term_height) = terminal_size();
-    let width = 50;
-    let height = 24;
-    let conf = Config {
-        // set dimensions
-        x: (term_width - 33),
-        y: 2,
-        width: Some((width) as u32),
-        height: Some((height) as u32),
-        restore_cursor: true,
-        ..Default::default()
-    };
-    let res = run_app(&mut terminal, app, conf);
+    let res = run_app(&mut terminal, app);
 
     // restore terminal
     disable_raw_mode()?;
@@ -165,15 +153,39 @@ pub fn anime_ui(
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     let mut ep_select = false;
-    fn change_image(conf: &Config, app: &App) {
+    fn change_image(app: &App) {
+        //save as f32
+        let (width, height) = terminal_size().to_owned();
+        let width = width as f32;
+        let height = height as f32;
+        let sixel_support = viuer::is_sixel_supported();
+        let config = match sixel_support {
+            true => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some((width / 1.3).round() as u32),
+                height: Some((height * 1.5) as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+            false => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some(((width / 2.0) - 4.0).round() as u32),
+                height: Some((height / 1.3).round() as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+        };
+
         let config_path = dirs::config_dir().unwrap().join("kami");
         let image_path = config_path.join("tmp.jpg");
         let selected = app.messages.state.selected();
         let image_url = app.animes.2[selected.unwrap()].clone();
         get_image(&image_url, &image_path.to_str().unwrap());
-        print_from_file(image_path, &conf).expect("Image printing failed.");
+        print_from_file(image_path, &config).expect("Image printing failed.");
     }
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
@@ -189,25 +201,22 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -
                     }
                     KeyCode::Left => app.messages.unselect(),
                     KeyCode::Char('h') => app.messages.unselect(),
-                    KeyCode::Down => {
-                        //match ep_select
-                        match ep_select {
-                            true => {
-                                app.messages.next();
-                            }
-                            false => {
-                                app.messages.next();
-                                change_image(&conf, &app);
-                            }
+                    KeyCode::Down => match ep_select {
+                        true => {
+                            app.messages.next();
                         }
-                    }
+                        false => {
+                            app.messages.next();
+                            change_image(&app);
+                        }
+                    },
                     KeyCode::Char('j') => match ep_select {
                         true => {
                             app.messages.next();
                         }
                         false => {
                             app.messages.next();
-                            change_image(&conf, &app);
+                            change_image(&app);
                         }
                     },
                     KeyCode::Up => match ep_select {
@@ -216,7 +225,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -
                         }
                         false => {
                             app.messages.previous();
-                            change_image(&conf, &app);
+                            change_image(&app);
                         }
                     },
                     KeyCode::Char('k') => match ep_select {
@@ -225,7 +234,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -
                         }
                         false => {
                             app.messages.previous();
-                            change_image(&conf, &app);
+                            change_image(&app);
                         }
                     },
                     //if KeyCode::Enter => {
