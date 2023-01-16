@@ -2,7 +2,7 @@ use crate::{
     get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
     write_an_progress,
 };
-use crate::{get_anime_link, get_animes};
+use crate::{get_anime_link, get_animes, get_image};
 use crate::{open_cast, open_video};
 
 use crossterm::{
@@ -20,6 +20,7 @@ use tui::{
     Frame, Terminal,
 };
 use unicode_width::UnicodeWidthStr;
+use viuer::{print_from_file, terminal_size, Config};
 
 use super::scraper::get_anime_info;
 
@@ -83,7 +84,7 @@ impl<T> StatefulList<T> {
 struct App {
     /// Current value of the input box
     input: String,
-    animes: (Vec<String>, Vec<String>),
+    animes: (Vec<String>, Vec<String>, Vec<String>),
     /// Current input mode
     input_mode: InputMode,
     /// History of recorded messages
@@ -102,7 +103,7 @@ impl<'a> App {
     fn default() -> App {
         App {
             input: String::new(),
-            animes: (Vec::new(), Vec::new()),
+            animes: (Vec::new(), Vec::new(), Vec::new()),
             input_mode: InputMode::Normal,
             messages: StatefulList::with_items(Vec::new()),
             title: String::new(),
@@ -154,6 +155,38 @@ pub fn anime_ui(
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
     let mut ep_select = false;
+    fn change_image(app: &App) {
+        //save as f32
+        let (width, height) = terminal_size().to_owned();
+        let width = width as f32;
+        let height = height as f32;
+        let sixel_support = viuer::is_sixel_supported();
+        let config = match sixel_support {
+            true => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some((width / 1.3).round() as u32),
+                height: Some((height * 1.5) as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+            false => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some(((width / 2.0) - 4.0).round() as u32),
+                height: Some((height / 1.3).round() as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+        };
+
+        let config_path = dirs::config_dir().unwrap().join("kami");
+        let image_path = config_path.join("tmp.jpg");
+        let selected = app.messages.state.selected();
+        let image_url = app.animes.2[selected.unwrap()].clone();
+        get_image(&image_url, &image_path.to_str().unwrap());
+        print_from_file(image_path, &config).expect("Image printing failed.");
+    }
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 
@@ -168,10 +201,42 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                     }
                     KeyCode::Left => app.messages.unselect(),
                     KeyCode::Char('h') => app.messages.unselect(),
-                    KeyCode::Down => app.messages.next(),
-                    KeyCode::Char('j') => app.messages.next(),
-                    KeyCode::Up => app.messages.previous(),
-                    KeyCode::Char('k') => app.messages.previous(),
+                    KeyCode::Down => match ep_select {
+                        true => {
+                            app.messages.next();
+                        }
+                        false => {
+                            app.messages.next();
+                            change_image(&app);
+                        }
+                    },
+                    KeyCode::Char('j') => match ep_select {
+                        true => {
+                            app.messages.next();
+                        }
+                        false => {
+                            app.messages.next();
+                            change_image(&app);
+                        }
+                    },
+                    KeyCode::Up => match ep_select {
+                        true => {
+                            app.messages.previous();
+                        }
+                        false => {
+                            app.messages.previous();
+                            change_image(&app);
+                        }
+                    },
+                    KeyCode::Char('k') => match ep_select {
+                        true => {
+                            app.messages.previous();
+                        }
+                        false => {
+                            app.messages.previous();
+                            change_image(&app);
+                        }
+                    },
                     //if KeyCode::Enter => {
                     KeyCode::Enter => {
                         if ep_select == false {
@@ -286,11 +351,17 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             .as_ref(),
         )
         .split(f.size());
+
     let block = Block::default()
         .borders(Borders::ALL)
         .title("kami")
         .border_type(BorderType::Rounded);
     f.render_widget(block, f.size());
+
+    let top_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(chunks[0]);
 
     let (msg, style) = match app.input_mode {
         InputMode::Normal => (
@@ -325,7 +396,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         })
         .collect();
     let messages = List::new(messages)
-        .block(Block::default().borders(Borders::ALL).title("list"))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("list")
+                .border_type(BorderType::Rounded),
+        )
         .style(Style::default().fg(Color::White))
         .highlight_style(
             Style::default()
@@ -333,7 +409,12 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol(">>");
-    f.render_stateful_widget(messages, chunks[0], &mut app.messages.state);
+    f.render_stateful_widget(messages, top_chunks[0], &mut app.messages.state);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title("info")
+        .border_type(BorderType::Rounded);
+    f.render_widget(block, top_chunks[1]);
 
     let mut text = Text::from(Spans::from(msg));
     text.patch_style(style);

@@ -1,6 +1,9 @@
 use isahc::config::Configurable;
 use isahc::{ReadResponseExt, Request, RequestExt};
 use regex::Regex;
+use std::fs::File;
+use std::io::prelude::*;
+
 //use serde_json::json;
 
 pub fn get_anime_html(url: &str) -> String {
@@ -30,7 +33,7 @@ pub fn get_post(id: &str) -> String {
     resp
 }
 
-pub fn get_animes(query: String) -> (Vec<String>, Vec<String>) {
+pub fn get_animes(query: String) -> (Vec<String>, Vec<String>, Vec<String>) {
     let query = query.replace(" ", "+");
     let html = get_anime_html(&format!("https://yugen.to/search/?q={}", query));
     let re = Regex::new(r#"href="(/anime[^"]*)""#).unwrap();
@@ -43,7 +46,12 @@ pub fn get_animes(query: String) -> (Vec<String>, Vec<String>) {
     for cap in re.captures_iter(&html) {
         animes_names.push(cap[1].to_string());
     }
-    (animes_links, animes_names)
+    let re = Regex::new(r#"data-src="([^"]*)"#).unwrap();
+    let mut animes_images = Vec::new();
+    for cap in re.captures_iter(&html) {
+        animes_images.push(cap[1].to_string());
+    }
+    (animes_links, animes_names, animes_images)
 }
 
 pub fn get_anime_info(url: &str) -> (i32, u16) {
@@ -76,4 +84,13 @@ pub fn get_anime_link(url: &str, episode: u64) -> String {
     let link = &capture[1];
     //return the link
     link.to_string()
+}
+
+pub fn get_image(url: &str, path: &str) {
+    let url = url;
+    let mut response = isahc::get(url).unwrap();
+    let mut buffer = Vec::new();
+    response.copy_to(&mut buffer).unwrap();
+    let mut file = File::create(path).unwrap();
+    file.write_all(&buffer).unwrap();
 }

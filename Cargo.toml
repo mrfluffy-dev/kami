@@ -19,3 +19,4 @@ tui = "0.18.0"
 crossterm = "0.24.0"
 unicode-width = "0.1.9"
 rust_cast = "0.17.0"
+viuer = { version = "0.6", features = ["sixel"] }
