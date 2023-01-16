@@ -190,21 +190,44 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, conf: Config) -
                     KeyCode::Left => app.messages.unselect(),
                     KeyCode::Char('h') => app.messages.unselect(),
                     KeyCode::Down => {
-                        app.messages.next();
-                        change_image(&conf, &app);
+                        //match ep_select
+                        match ep_select {
+                            true => {
+                                app.messages.next();
+                            }
+                            false => {
+                                app.messages.next();
+                                change_image(&conf, &app);
+                            }
+                        }
                     }
-                    KeyCode::Char('j') => {
-                        app.messages.next();
-                        change_image(&conf, &app)
-                    }
-                    KeyCode::Up => {
-                        app.messages.previous();
-                        change_image(&conf, &app);
-                    }
-                    KeyCode::Char('k') => {
-                        app.messages.previous();
-                        change_image(&conf, &app)
-                    }
+                    KeyCode::Char('j') => match ep_select {
+                        true => {
+                            app.messages.next();
+                        }
+                        false => {
+                            app.messages.next();
+                            change_image(&conf, &app);
+                        }
+                    },
+                    KeyCode::Up => match ep_select {
+                        true => {
+                            app.messages.previous();
+                        }
+                        false => {
+                            app.messages.previous();
+                            change_image(&conf, &app);
+                        }
+                    },
+                    KeyCode::Char('k') => match ep_select {
+                        true => {
+                            app.messages.previous();
+                        }
+                        false => {
+                            app.messages.previous();
+                            change_image(&conf, &app);
+                        }
+                    },
                     //if KeyCode::Enter => {
                     KeyCode::Enter => {
                         if ep_select == false {
