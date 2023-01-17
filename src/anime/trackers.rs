@@ -264,7 +264,6 @@ pub fn get_an_history() -> (Vec<String>, Vec<String>, Vec<String>) {
         titles.push(key.to_string());
         links.push(value["link"].as_str().unwrap().to_string());
         images.push(value["image"].as_str().unwrap().to_string());
-        println!("{}", value["updated"].as_u64().unwrap());
         last_updated.push(value["updated"].as_u64().unwrap());
     }
     let mut indices: Vec<usize> = (0..last_updated.len()).collect();
