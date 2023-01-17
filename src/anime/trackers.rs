@@ -209,7 +209,7 @@ pub fn get_an_json() -> serde_json::Value {
     json
 }
 
-pub fn write_an_progress(title: &str, progress: &u64) {
+pub fn write_an_progress(anime: (&str, &str, &str), progress: &u64) {
     let config_path = dirs::config_dir().unwrap().join("kami");
     let json_path = config_path.join("an_progress.json");
     let json = fs::read_to_string(&json_path).unwrap();
@@ -220,14 +220,59 @@ pub fn write_an_progress(title: &str, progress: &u64) {
         "progress".to_string(),
         serde_json::Value::from(progress.clone()),
     );
+    title_json.insert("link".to_string(), serde_json::Value::from(anime.1));
+    title_json.insert("image".to_string(), serde_json::Value::from(anime.2));
+    title_json.insert(
+        "updated".to_string(),
+        serde_json::Value::from(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+        ),
+    );
     //insert title_json into json
-    if json[title].is_null() {
-        json[title] = serde_json::Value::from(title_json);
+    if json[anime.0].is_null() {
+        json[anime.0] = serde_json::Value::from(title_json);
     } else {
-        json[title]["progress"] = serde_json::Value::from(progress.clone());
+        json[anime.0]["progress"] = serde_json::Value::from(progress.clone());
+        json[anime.0]["link"] = serde_json::Value::from(anime.1);
+        json[anime.0]["image"] = serde_json::Value::from(anime.2);
+        json[anime.0]["updated"] = serde_json::Value::from(
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+        );
     }
     let json = serde_json::to_string_pretty(&json).unwrap();
     fs::write(&json_path, json).unwrap();
+}
+
+pub fn get_an_history() -> (Vec<String>, Vec<String>, Vec<String>) {
+    //get the titles, links, and images from the json
+    let json = get_an_json();
+    let mut titles = vec![];
+    let mut links = vec![];
+    let mut images = vec![];
+    let mut last_updated = vec![];
+    //if the json is empty, return empty vectors
+    if json.is_null() {
+        return (titles, links, images);
+    }
+    for (key, value) in json.as_object().unwrap() {
+        titles.push(key.to_string());
+        links.push(value["link"].as_str().unwrap().to_string());
+        images.push(value["image"].as_str().unwrap().to_string());
+        println!("{}", value["updated"].as_u64().unwrap());
+        last_updated.push(value["updated"].as_u64().unwrap());
+    }
+    let mut indices: Vec<usize> = (0..last_updated.len()).collect();
+    indices.sort_by(|&a, &b| last_updated[b].cmp(&last_updated[a]));
+    titles = indices.iter().map(|&i| titles[i].clone()).collect();
+    links = indices.iter().map(|&i| links[i].clone()).collect();
+    images = indices.iter().map(|&i| images[i].clone()).collect();
+    (links, titles, images)
 }
 
 pub fn get_an_progress(title: &str) -> i32 {

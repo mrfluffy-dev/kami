@@ -1,5 +1,5 @@
 use crate::{
-    get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
+    get_an_history, get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
     write_an_progress,
 };
 use crate::{get_anime_link, get_animes, get_image};
@@ -85,6 +85,7 @@ struct App {
     /// Current value of the input box
     input: String,
     animes: (Vec<String>, Vec<String>, Vec<String>),
+    image: String,
     /// Current input mode
     input_mode: InputMode,
     /// History of recorded messages
@@ -103,7 +104,8 @@ impl<'a> App {
     fn default() -> App {
         App {
             input: String::new(),
-            animes: (Vec::new(), Vec::new(), Vec::new()),
+            animes: get_an_history(),
+            image: String::new(),
             input_mode: InputMode::Normal,
             messages: StatefulList::with_items(Vec::new()),
             title: String::new(),
@@ -182,11 +184,15 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
 
         let config_path = dirs::config_dir().unwrap().join("kami");
         let image_path = config_path.join("tmp.jpg");
-        let selected = app.messages.state.selected();
-        let image_url = app.animes.2[selected.unwrap()].clone();
-        get_image(&image_url, &image_path.to_str().unwrap());
+        get_image(&app.image, &image_path.to_str().unwrap());
         print_from_file(image_path, &config).expect("Image printing failed.");
     }
+    app.messages.items.clear();
+    for anime in &app.animes.1 {
+        app.messages.push(anime.to_string());
+    }
+    app.input_mode = InputMode::Normal;
+
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
 
@@ -207,6 +213,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         }
                         false => {
                             app.messages.next();
+                            let selected = app.messages.state.selected();
+                            app.image = app.animes.2[selected.unwrap()].clone();
                             change_image(&app);
                         }
                     },
@@ -216,6 +224,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         }
                         false => {
                             app.messages.next();
+                            let selected = app.messages.state.selected();
+                            app.image = app.animes.2[selected.unwrap()].clone();
                             change_image(&app);
                         }
                     },
@@ -225,6 +235,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         }
                         false => {
                             app.messages.previous();
+                            let selected = app.messages.state.selected();
+                            app.image = app.animes.2[selected.unwrap()].clone();
                             change_image(&app);
                         }
                     },
@@ -234,6 +246,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                         }
                         false => {
                             app.messages.previous();
+                            let selected = app.messages.state.selected();
+                            app.image = app.animes.2[selected.unwrap()].clone();
                             change_image(&app);
                         }
                     },
@@ -265,10 +279,13 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                         &app.cast.1,
                                     )
                                 }
+                                let selected = app.messages.state.selected();
+                                let image_url = app.animes.2[selected.unwrap()].clone();
                                 if app.token == "local" || app.anime_id == 0 {
-                                    write_an_progress(&app.title, &1);
+                                    write_an_progress((&app.title, &app.link, &image_url), &1);
                                 } else {
                                     update_anime_progress(app.anime_id, 1, app.token.as_str());
+                                    write_an_progress((&app.title, &app.link, &image_url), &1);
                                 }
                             } else {
                                 for ep in 1..anime_info.1 + 1 {
@@ -295,15 +312,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                     &app.cast.1,
                                 )
                             }
+                            let image_url = &app.image;
                             if app.ep > app.progress as u64 {
                                 if app.token == "local" || app.anime_id == 0 {
-                                    write_an_progress(&app.title, &app.ep);
+                                    write_an_progress((&app.title, &app.link, &image_url), &app.ep);
                                 } else {
                                     update_anime_progress(
                                         app.anime_id,
                                         app.ep as usize,
                                         app.token.as_str(),
                                     );
+                                    write_an_progress((&app.title, &app.link, &image_url), &app.ep);
                                 }
                                 app.progress = app.ep as i32;
                             }
