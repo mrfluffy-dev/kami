@@ -261,6 +261,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .unwrap();
                             app.episodes = get_episodes(
                                 &app.animes.0[selected.unwrap()].parse::<i32>().unwrap(),
+                                &app.provider,
                             );
                             app.messages.items.clear();
                             if app.token == "local" || app.anime_id == 0 {
@@ -272,12 +273,16 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 app.messages.state.select(Some(app.progress as usize));
                             }
                             if app.episodes.0.len() == 1 {
-                                let link = get_episode_link(&app.episodes.1[0]);
+                                let link = get_episode_link(&app.episodes.1[0], &app.provider);
                                 if !app.cast.0 {
-                                    open_video((link, format!("{} Episode 1", &app.title)));
+                                    open_video((
+                                        link.0,
+                                        format!("{} Episode 1", &app.title),
+                                        link.1,
+                                    ));
                                 } else {
                                     open_cast(
-                                        (link, format!("{} Episode 1", &app.title)),
+                                        (link.1, format!("{} Episode 1", &app.title)),
                                         &app.cast.1,
                                     )
                                 }
@@ -317,12 +322,19 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 .collect::<Vec<&str>>()[0]
                                 .parse::<u64>()
                                 .unwrap();
-                            let link = get_episode_link(&app.episodes.1[app.ep as usize - 1]);
+                            let link = get_episode_link(
+                                &app.episodes.1[app.ep as usize - 1],
+                                &app.provider,
+                            );
                             if !app.cast.0 {
-                                open_video((link, format!("{} Episode {}", &app.title, app.ep)));
+                                open_video((
+                                    link.0,
+                                    format!("{} Episode {}", &app.title, app.ep),
+                                    link.1,
+                                ));
                             } else {
                                 open_cast(
-                                    (link, format!("{} Episode {}", &app.title, app.ep)),
+                                    (link.0, format!("{} Episode {}", &app.title, app.ep)),
                                     &app.cast.1,
                                 )
                             }

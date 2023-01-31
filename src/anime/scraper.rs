@@ -43,11 +43,11 @@ pub fn search_anime(query: String) -> (Vec<String>, Vec<String>, Vec<String>) {
     (ids, titles, images)
 }
 
-pub fn get_episodes(id: &i32) -> (Vec<String>, Vec<String>) {
+pub fn get_episodes(id: &i32, provider: &str) -> (Vec<String>, Vec<String>) {
     let req = Request::builder()
         .uri(format!(
-            "https://api.consumet.org/meta/anilist/info/{}?provider=gogoanime",
-            id
+            "https://api.consumet.org/meta/anilist/info/{}?provider={}",
+            id, provider
         ))
         .redirect_policy(isahc::config::RedirectPolicy::Follow)
         .header(
@@ -67,11 +67,11 @@ pub fn get_episodes(id: &i32) -> (Vec<String>, Vec<String>) {
     (titles, ids)
 }
 
-pub fn get_episode_link(ep_id: &str) -> String {
+pub fn get_episode_link(ep_id: &str, provider: &str) -> (String, String) {
     let req = Request::builder()
         .uri(format!(
-            "https://api.consumet.org/meta/anilist/watch/{}?provider=gogoanime",
-            ep_id
+            "https://api.consumet.org/meta/anilist/watch/{}?provider={}",
+            ep_id, provider
         ))
         .redirect_policy(isahc::config::RedirectPolicy::Follow)
         .header(
@@ -84,17 +84,33 @@ pub fn get_episode_link(ep_id: &str) -> String {
     let json: serde_json::Value = serde_json::from_str(&json).unwrap();
     let url = "";
     std::fs::write("test.json", json.to_string()).unwrap();
+    let mut subtitle = String::new();
+    let _error_vec = Vec::new();
+    let sub_array = json["subtitles"].as_array().unwrap_or(&_error_vec);
+    for i in 0..sub_array.len() {
+        //set subtitle to lang = English
+        if json["subtitles"][i]["lang"].as_str().unwrap_or("null") == "English" {
+            subtitle = json["subtitles"][i]["url"]
+                .as_str()
+                .unwrap_or("null")
+                .to_string();
+            // add \ before the first : in the url
+            subtitle = subtitle.replace(":", "\\:");
+        }
+    }
     for i in 0..json["sources"].as_array().unwrap().len() {
-        //return json["sources"][i]["url"].as_str().unwrap().to_string(); where json["sources"][i]["quality"].as_str().unwrap().contains("1080")
         if json["sources"][i]["quality"]
             .as_str()
             .unwrap()
             .contains("1080")
         {
-            return json["sources"][i]["url"].as_str().unwrap().to_string();
+            return (
+                json["sources"][i]["url"].as_str().unwrap().to_string(),
+                subtitle,
+            );
         }
     }
-    url.to_string()
+    (url.to_string(), subtitle)
 }
 
 pub fn get_image(url: &str, path: &str) {

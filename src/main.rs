@@ -29,17 +29,17 @@ fn main() {
         if arg == "--provider" || arg == "-r" {
             if let Some(arg) = std::env::args().nth(count + 1) {
                 //get the next argument and see if it is = to gogo of vrv
-                if arg == "vrv" {
-                    provider = "vrv".to_string();
+                if arg == "zoro" {
+                    provider = "zoro".to_string();
                     count += 1;
                 } else if arg == "gogo" {
-                    provider = "gogo".to_string();
+                    provider = "gogoanime".to_string();
                     count += 1;
                 } else {
-                    provider = "gogo".to_string();
+                    provider = "zoro".to_string();
                 }
             } else {
-                provider = "vrv".to_string();
+                provider = "zoro".to_string();
             }
         }
         if arg == "--cast" || arg == "-C" {
@@ -122,13 +122,13 @@ fn print_help() {
     );
     println!(
         "if no provider is entered it will default to {}",
-        "vrv".green()
+        "gogo".green()
     );
     println!(
         "if the -r argument is not used it will default to {}",
-        "gogo".green()
+        "zoro".green()
     );
-    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
+    println!("the providers are {} or {}", "gogo".green(), "zoro".green());
     println!("");
     println!("help:\t\t{}", format_args!("{}", "-h --help".red()));
     //kill the program
