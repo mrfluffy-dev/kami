@@ -133,6 +133,16 @@ fn print_help() {
         "if no provider is entered it will default to {}",
         "vrv".green()
     );
+    println!("");
+    println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
+    println!(
+        "{}",
+        "after this^^^ argument you can enter a reader".green()
+    );
+    println!(
+        "if no reader is entered it will default to {}",
+        "bat".green()
+    );
     println!(
         "if the -r argument is not used it will default to {}",
         "gogo".green()
