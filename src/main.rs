@@ -18,6 +18,7 @@ fn main() {
     //let search = option string
     let mut count = 0;
     let mut provider: String = "gogo".to_string();
+    let mut reader: String = "bat".to_string();
     let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
         match &*arg {
@@ -26,17 +27,29 @@ fn main() {
             "--provider" | "-r" => {
                 if let Some(arg) = std::env::args().nth(count + 1) {
                     //get the next argument and see if it is = to gogo of vrv
-                    if arg == "vrv" {
-                        provider = "vrv".to_string();
-                        count += 1;
-                    } else if arg == "gogo" {
-                        provider = "gogo".to_string();
-                        count += 1;
-                    } else {
-                        provider = "gogo".to_string();
+                    match arg.as_str() {
+                        "vrv" | "gogo" => {
+                            provider = arg;
+                            count += 1;
+                        }
+                        &_ => provider = "gogo".to_string(),
                     }
                 } else {
                     provider = "vrv".to_string();
+                }
+            }
+            "--reader" | "-R" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    //get the next argument and see if it is = to gogo of vrv
+                    match arg.as_str() {
+                        "bat" | "glow" => {
+                            reader = arg;
+                            count += 1;
+                        }
+                        &_ => reader = "bat".to_string(),
+                    }
+                } else {
+                    provider = "glow".to_string();
                 }
             }
             "--cast" | "-C" => {
@@ -80,7 +93,7 @@ fn main() {
     }
     if ln == true {
         //ln_read(&search, chapter);
-        _ = ln_ui(chapter);
+        _ = ln_ui(chapter, reader);
     } else if anime == true {
         //anime_stream(search, episode, resume);
 
