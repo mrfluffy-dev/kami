@@ -20,45 +20,41 @@ fn main() {
     let mut provider: String = "gogo".to_string();
     let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
-        if arg == "--help" || arg == "-h" {
-            help = true;
-        }
-        if arg == "--anime" || arg == "-a" {
-            anime = true;
-        }
-        if arg == "--provider" || arg == "-r" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                //get the next argument and see if it is = to gogo of vrv
-                if arg == "vrv" {
-                    provider = "vrv".to_string();
-                    count += 1;
-                } else if arg == "gogo" {
-                    provider = "gogo".to_string();
-                    count += 1;
+        match &*arg {
+            "--help" | "-h" => help = true,
+            "--anime" | "-a" => anime = true,
+            "--provider" | "-r" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    //get the next argument and see if it is = to gogo of vrv
+                    if arg == "vrv" {
+                        provider = "vrv".to_string();
+                        count += 1;
+                    } else if arg == "gogo" {
+                        provider = "gogo".to_string();
+                        count += 1;
+                    } else {
+                        provider = "gogo".to_string();
+                    }
                 } else {
-                    provider = "gogo".to_string();
+                    provider = "vrv".to_string();
                 }
-            } else {
-                provider = "vrv".to_string();
             }
-        }
-        if arg == "--cast" || arg == "-C" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                cast = (true, String::from(arg))
-            } else {
-                println!("{}", "please provide a ip address".red())
+            "--cast" | "-C" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    cast = (true, String::from(arg))
+                } else {
+                    println!("{}", "please provide a ip address".red())
+                }
             }
-        }
-
-        if arg == "--ln" || arg == "-l" {
-            ln = true;
-        }
-        if arg == "--chapter" || arg == "-c" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                chapter = arg.parse::<u32>().unwrap();
-            } else {
-                chapter = 0;
+            "--ln" | "-l" => ln = true,
+            "--chapter" | "-c" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    chapter = arg.parse::<u32>().unwrap();
+                } else {
+                    chapter = 0;
+                }
             }
+            &_ => {}
         }
 
         count += 1;
