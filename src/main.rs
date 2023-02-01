@@ -17,7 +17,7 @@ fn main() {
     let mut chapter: u32 = 0;
     //let search = option string
     let mut count = 0;
-    let mut provider: String = "gogo".to_string();
+    let mut provider: String = "zoro".to_string();
     let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
         if arg == "--help" || arg == "-h" {
@@ -36,10 +36,10 @@ fn main() {
                     provider = "gogoanime".to_string();
                     count += 1;
                 } else {
-                    provider = "zoro".to_string();
+                    provider = "gogo".to_string();
                 }
             } else {
-                provider = "zoro".to_string();
+                provider = "gogo".to_string();
             }
         }
         if arg == "--cast" || arg == "-C" {

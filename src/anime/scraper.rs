@@ -82,7 +82,7 @@ pub fn get_episode_link(ep_id: &str, provider: &str) -> (String, String) {
         .unwrap();
     let json = req.send().unwrap().text().unwrap();
     let json: serde_json::Value = serde_json::from_str(&json).unwrap();
-    let url = "";
+    let mut url = String::new();
     std::fs::write("test.json", json.to_string()).unwrap();
     let mut subtitle = String::new();
     let _error_vec = Vec::new();
@@ -98,16 +98,17 @@ pub fn get_episode_link(ep_id: &str, provider: &str) -> (String, String) {
             subtitle = subtitle.replace(":", "\\:");
         }
     }
+    let mut highest_quality = 0;
     for i in 0..json["sources"].as_array().unwrap().len() {
-        if json["sources"][i]["quality"]
+        let quality = json["sources"][i]["quality"]
             .as_str()
             .unwrap()
-            .contains("1080")
-        {
-            return (
-                json["sources"][i]["url"].as_str().unwrap().to_string(),
-                subtitle,
-            );
+            .replace("p", "")
+            .parse::<i32>()
+            .unwrap_or(0);
+        if quality > highest_quality {
+            highest_quality = quality;
+            url = json["sources"][i]["url"].as_str().unwrap().to_string();
         }
     }
     (url.to_string(), subtitle)
