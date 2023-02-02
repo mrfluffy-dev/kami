@@ -40,54 +40,6 @@ pub fn get_token() -> String {
     token
 }
 
-pub fn get_anime_id(mal_id: i32) -> i32 {
-    const QUERY: &str = "
-query ($id: Int, $search: Int) {
-    Media (id: $id, idMal: $search, type: ANIME) {
-        id
-        title {
-            native
-            romaji
-            english
-        }
-    }
-}
-";
-    let json = json!({
-        "query": QUERY,
-        "variables": {
-            "search": mal_id
-        }
-    });
-    let resp = Request::builder()
-        .method("POST")
-        .uri("https://graphql.anilist.co/")
-        .header("Content-Type", "application/json")
-        .header("Accept", "application/json")
-        .body(json.to_string())
-        .unwrap()
-        .send()
-        .unwrap()
-        .text();
-    let regex = regex::Regex::new(r#"id":(.*?),"#).unwrap();
-    let resp: String = resp.as_ref().unwrap().to_string();
-    //if error let id = 0
-    let id = match regex.captures(&resp) {
-        Some(captures) => captures[1].parse::<i32>().unwrap(),
-        None => 0,
-    };
-
-    // let id = regex
-    //     .captures(&resp)
-    //     .unwrap()
-    //     .get(1)
-    //     .unwrap()
-    //     .as_str()
-    //     .parse::<i32>()
-    //     .unwrap();
-    id
-}
-
 //get the user id from the token
 fn get_user_id(token: &str) -> i32 {
     const QUERY: &str = "query {
