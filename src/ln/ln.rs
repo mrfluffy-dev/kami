@@ -1,4 +1,4 @@
-use crate::ln::open_text::*;
+use crate::ln::open_text::{open_bat, open_glow};
 use crate::ln::scraper::*;
 use crate::ln::tracker::*;
 use crossterm::{
@@ -113,7 +113,7 @@ impl<'a> App {
     }
 }
 
-pub fn ln_ui(chapter: u32) -> Result<(), Box<dyn Error>> {
+pub fn ln_ui(chapter: u32, reader: String) -> Result<(), Box<dyn Error>> {
     // setup terminal
     let _ = get_ln_json();
     enable_raw_mode()?;
@@ -130,7 +130,7 @@ pub fn ln_ui(chapter: u32) -> Result<(), Box<dyn Error>> {
         app.current_page_number = (chapter / 48.0).ceil() as u32;
     }
 
-    let res = run_app(&mut terminal, app);
+    let res = run_app(&mut terminal, app, &*reader);
 
     // restore terminal
     disable_raw_mode()?;
@@ -148,7 +148,7 @@ pub fn ln_ui(chapter: u32) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App, reader: &str) -> io::Result<()> {
     let mut chapter_select = false;
 
     loop {
@@ -244,7 +244,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
                                 file.sync_all().expect("Unable to sync file");
                             };
                             terminal.clear()?;
-                            let _ = open_bat();
+                            let _ = match reader {
+                                "bat" => open_bat(),
+                                "glow" => open_glow(),
+                                &_ => todo!(),
+                            };
                             write_ln_progress(
                                 &app.title,
                                 &app.current_page_number,

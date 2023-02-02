@@ -18,47 +18,56 @@ fn main() {
     //let search = option string
     let mut count = 0;
     let mut provider: String = "gogo".to_string();
+    let mut reader: String = "bat".to_string();
     let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
-        if arg == "--help" || arg == "-h" {
-            help = true;
-        }
-        if arg == "--anime" || arg == "-a" {
-            anime = true;
-        }
-        if arg == "--provider" || arg == "-r" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                //get the next argument and see if it is = to gogo of vrv
-                if arg == "vrv" {
-                    provider = "vrv".to_string();
-                    count += 1;
-                } else if arg == "gogo" {
-                    provider = "gogo".to_string();
-                    count += 1;
+        match &*arg {
+            "--help" | "-h" => help = true,
+            "--anime" | "-a" => anime = true,
+            "--provider" | "-r" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    //get the next argument and see if it is = to gogo of vrv
+                    match arg.as_str() {
+                        "vrv" | "gogo" => {
+                            provider = arg;
+                            count += 1;
+                        }
+                        &_ => provider = "gogo".to_string(),
+                    }
                 } else {
-                    provider = "gogo".to_string();
+                    provider = "vrv".to_string();
                 }
-            } else {
-                provider = "vrv".to_string();
             }
-        }
-        if arg == "--cast" || arg == "-C" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                cast = (true, String::from(arg))
-            } else {
-                println!("{}", "please provide a ip address".red())
+            "--reader" | "-R" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    //get the next argument and see if it is = to gogo of vrv
+                    match arg.as_str() {
+                        "bat" | "glow" => {
+                            reader = arg;
+                            count += 1;
+                        }
+                        &_ => reader = "bat".to_string(),
+                    }
+                } else {
+                    provider = "glow".to_string();
+                }
             }
-        }
-
-        if arg == "--ln" || arg == "-l" {
-            ln = true;
-        }
-        if arg == "--chapter" || arg == "-c" {
-            if let Some(arg) = std::env::args().nth(count + 1) {
-                chapter = arg.parse::<u32>().unwrap();
-            } else {
-                chapter = 0;
+            "--cast" | "-C" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    cast = (true, String::from(arg))
+                } else {
+                    println!("{}", "please provide a ip address".red())
+                }
             }
+            "--ln" | "-l" => ln = true,
+            "--chapter" | "-c" => {
+                if let Some(arg) = std::env::args().nth(count + 1) {
+                    chapter = arg.parse::<u32>().unwrap();
+                } else {
+                    chapter = 0;
+                }
+            }
+            &_ => {}
         }
 
         count += 1;
@@ -84,7 +93,7 @@ fn main() {
     }
     if ln == true {
         //ln_read(&search, chapter);
-        _ = ln_ui(chapter);
+        _ = ln_ui(chapter, reader);
     } else if anime == true {
         //anime_stream(search, episode, resume);
 
@@ -129,6 +138,21 @@ fn print_help() {
         "gogo".green()
     );
     println!("the providers are {} or {}", "gogo".green(), "vrv".green());
+    println!("");
+    println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
+    println!(
+        "{}",
+        "after this^^^ argument you can enter a reader".green()
+    );
+    println!(
+        "if no reader is entered it will default to {}",
+        "bat".green()
+    );
+    println!(
+        "if the -R argument is not used it will default to {}",
+        "bat".green()
+    );
+    println!("the readers are {} or {}", "bat".green(), "glow".green());
     println!("");
     println!("help:\t\t{}", format_args!("{}", "-h --help".red()));
     //kill the program
