@@ -1,6 +1,7 @@
 mod anime;
 mod helpers;
 mod ln;
+mod ui;
 
 use anime::anime::anime_ui;
 use colored::Colorize;
