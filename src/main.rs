@@ -134,6 +134,11 @@ fn print_help() {
         "if no provider is entered it will default to {}",
         "vrv".green()
     );
+    println!(
+        "if the -r argument is not used it will default to {}",
+        "gogo".green()
+    );
+    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
     println!("");
     println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
     println!(
@@ -145,10 +150,10 @@ fn print_help() {
         "bat".green()
     );
     println!(
-        "if the -r argument is not used it will default to {}",
-        "gogo".green()
+        "if the -R argument is not used it will default to {}",
+        "bat".green()
     );
-    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
+    println!("the readers are {} or {}", "bat".green(), "glow".green());
     println!("");
     println!("help:\t\t{}", format_args!("{}", "-h --help".red()));
     //kill the program
