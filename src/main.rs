@@ -29,14 +29,14 @@ fn main() {
                 if let Some(arg) = std::env::args().nth(count + 1) {
                     //get the next argument and see if it is = to gogo of vrv
                     match arg.as_str() {
-                        "vrv" | "gogo" => {
+                        "zoro" | "gogoanime" => {
                             provider = arg;
                             count += 1;
                         }
-                        &_ => provider = "gogo".to_string(),
+                        &_ => provider = "gogoanime".to_string(),
                     }
                 } else {
-                    provider = "vrv".to_string();
+                    provider = "zoro".to_string();
                 }
             }
             "--reader" | "-R" => {
@@ -49,9 +49,14 @@ fn main() {
                         }
                         &_ => reader = "bat".to_string(),
                     }
+
                 } else {
                     provider = "glow".to_string();
                 }
+
+            } else {
+                provider = "gogo".to_string();
+
             }
             "--cast" | "-C" => {
                 if let Some(arg) = std::env::args().nth(count + 1) {
@@ -132,13 +137,13 @@ fn print_help() {
     );
     println!(
         "if no provider is entered it will default to {}",
-        "vrv".green()
+        "gogo".green()
     );
     println!(
         "if the -r argument is not used it will default to {}",
-        "gogo".green()
+        "zoro".green()
     );
-    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
+    println!("the providers are {} or {}", "gogoanime".green(), "zoro".green());
     println!("");
     println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
     println!(

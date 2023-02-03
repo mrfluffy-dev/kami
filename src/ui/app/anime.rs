@@ -1,9 +1,9 @@
 use crate::ui::{app::app::KamiApp, input::InputMode, list::StatefulList};
 
 use crate::anime::player::{open_cast, open_video};
-use crate::anime::scraper::{get_anime_info, get_anime_link, get_animes, get_image};
+use crate::anime::scraper::{get_episode_link, get_episodes, get_image, search_anime};
 use crate::anime::trackers::{
-    get_an_history, get_an_progress, get_anime_id, get_user_anime_progress, update_anime_progress,
+    get_an_history, get_an_progress, get_user_anime_progress, update_anime_progress,
     write_an_progress,
 };
 
@@ -29,6 +29,7 @@ pub struct App {
     input_mode: InputMode,
     /// History of recorded messages
     messages: StatefulList<String>,
+    episodes: (Vec<String>, Vec<String>),
     title: String,
     link: String,
     ep: u64,
@@ -39,6 +40,39 @@ pub struct App {
     pub cast: (bool, String),
 }
 
+impl<'a> App {
+    fn change_image(&mut self) {
+        //save as f32
+        let (width, height) = terminal_size().to_owned();
+        let width = width as f32;
+        let height = height as f32;
+        let sixel_support = viuer::is_sixel_supported();
+        let config = match sixel_support {
+            true => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some((width / 1.3).round() as u32),
+                height: Some((height * 1.5) as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+            false => Config {
+                x: ((width / 2.0) + 1.0).round() as u16,
+                y: 2,
+                width: Some(((width / 2.0) - 4.0).round() as u32),
+                height: Some((height / 1.3).round() as u32),
+                restore_cursor: true,
+                ..Default::default()
+            },
+        };
+
+        let config_path = dirs::config_dir().unwrap().join("kami");
+        let image_path = config_path.join("tmp.jpg");
+        get_image(&self.image, &image_path.to_str().unwrap());
+        print_from_file(image_path, &config).expect("Image printing failed.");
+    }
+}
+
 impl<'a> KamiApp for App {
     fn new() -> Self {
         App {
@@ -47,6 +81,7 @@ impl<'a> KamiApp for App {
             image: String::new(),
             input_mode: InputMode::Normal,
             messages: StatefulList::with_items(Vec::new()),
+            episodes: (Vec::new(), Vec::new()),
             title: String::new(),
             link: String::new(),
             ep: 0,
@@ -60,36 +95,6 @@ impl<'a> KamiApp for App {
 
     fn run<B: Backend>(&mut self, terminal: &mut Terminal<B>) -> io::Result<()> {
         let mut ep_select = false;
-        fn change_image(app: &App) {
-            //save as f32
-            let (width, height) = terminal_size().to_owned();
-            let width = width as f32;
-            let height = height as f32;
-            let sixel_support = viuer::is_sixel_supported();
-            let config = match sixel_support {
-                true => Config {
-                    x: ((width / 2.0) + 1.0).round() as u16,
-                    y: 2,
-                    width: Some((width / 1.3).round() as u32),
-                    height: Some((height * 1.5) as u32),
-                    restore_cursor: true,
-                    ..Default::default()
-                },
-                false => Config {
-                    x: ((width / 2.0) + 1.0).round() as u16,
-                    y: 2,
-                    width: Some(((width / 2.0) - 4.0).round() as u32),
-                    height: Some((height / 1.3).round() as u32),
-                    restore_cursor: true,
-                    ..Default::default()
-                },
-            };
-
-            let config_path = dirs::config_dir().unwrap().join("kami");
-            let image_path = config_path.join("tmp.jpg");
-            get_image(&app.image, &image_path.to_str().unwrap());
-            print_from_file(image_path, &config).expect("Image printing failed.");
-        }
         self.messages.items.clear();
         for anime in &self.animes.1 {
             self.messages.push(anime.to_string());
@@ -110,8 +115,6 @@ impl<'a> KamiApp for App {
                         }
                         KeyCode::Left => self.messages.unselect(),
                         KeyCode::Char('h') => self.messages.unselect(),
-                        KeyCode::Char('g') => self.messages.begin(),
-                        KeyCode::Char('G') => self.messages.end(),
                         KeyCode::Down => match ep_select {
                             true => {
                                 self.messages.next();
@@ -120,7 +123,7 @@ impl<'a> KamiApp for App {
                                 self.messages.next();
                                 let selected = self.messages.state.selected();
                                 self.image = self.animes.2[selected.unwrap()].clone();
-                                change_image(&self);
+                                self.change_image();
                             }
                         },
                         KeyCode::Char('j') => match ep_select {
@@ -131,7 +134,7 @@ impl<'a> KamiApp for App {
                                 self.messages.next();
                                 let selected = self.messages.state.selected();
                                 self.image = self.animes.2[selected.unwrap()].clone();
-                                change_image(&self);
+                                self.change_image();
                             }
                         },
                         KeyCode::Up => match ep_select {
@@ -142,7 +145,7 @@ impl<'a> KamiApp for App {
                                 self.messages.previous();
                                 let selected = self.messages.state.selected();
                                 self.image = self.animes.2[selected.unwrap()].clone();
-                                change_image(&self);
+                                self.change_image();
                             }
                         },
                         KeyCode::Char('k') => match ep_select {
@@ -153,7 +156,7 @@ impl<'a> KamiApp for App {
                                 self.messages.previous();
                                 let selected = self.messages.state.selected();
                                 self.image = self.animes.2[selected.unwrap()].clone();
-                                change_image(&self);
+                                self.change_image();
                             }
                         },
                         //if KeyCode::Enter => {
@@ -162,9 +165,14 @@ impl<'a> KamiApp for App {
                                 self.progress = 0;
                                 let selected = self.messages.state.selected();
                                 self.title = self.messages.items[selected.unwrap()].clone();
-                                self.link = self.animes.0[selected.unwrap()].clone();
-                                let anime_info = get_anime_info(&self.animes.0[selected.unwrap()]);
-                                self.anime_id = get_anime_id(anime_info.0);
+                                self.anime_id = self.animes.0[selected.unwrap()]
+                                    .clone()
+                                    .parse::<i32>()
+                                    .unwrap();
+                                self.episodes = get_episodes(
+                                    &self.animes.0[selected.unwrap()].parse::<i32>().unwrap(),
+                                    &self.provider,
+                                );
                                 self.messages.items.clear();
                                 if self.token == "local" || self.anime_id == 0 {
                                     self.progress = get_an_progress(&self.title) as i32;
@@ -174,13 +182,18 @@ impl<'a> KamiApp for App {
                                         get_user_anime_progress(self.anime_id, self.token.as_str());
                                     self.messages.state.select(Some(self.progress as usize));
                                 }
-                                if anime_info.1 == 1 {
-                                    let link = get_anime_link(&self.link, 1);
+                                if self.episodes.0.len() == 1 {
+                                    let link =
+                                        get_episode_link(&self.episodes.1[0], &self.provider);
                                     if !self.cast.0 {
-                                        open_video((link, format!("{} Episode 1", &self.title)));
+                                        open_video((
+                                            link.0,
+                                            format!("{} Episode 1", &self.title),
+                                            link.1,
+                                        ));
                                     } else {
                                         open_cast(
-                                            (link, format!("{} Episode 1", &self.title)),
+                                            (link.1, format!("{} Episode 1", &self.title)),
                                             &self.cast.1,
                                         )
                                     }
@@ -188,7 +201,7 @@ impl<'a> KamiApp for App {
                                     let image_url = self.animes.2[selected.unwrap()].clone();
                                     if self.token == "local" || self.anime_id == 0 {
                                         write_an_progress(
-                                            (&self.title, &self.link, &image_url),
+                                            (&self.title, &self.anime_id.to_string(), &image_url),
                                             &1,
                                         );
                                     } else {
@@ -198,13 +211,17 @@ impl<'a> KamiApp for App {
                                             self.token.as_str(),
                                         );
                                         write_an_progress(
-                                            (&self.title, &self.link, &image_url),
+                                            (&self.title, &self.anime_id.to_string(), &image_url),
                                             &1,
                                         );
                                     }
                                 } else {
-                                    for ep in 1..anime_info.1 + 1 {
-                                        self.messages.push(format!("Episode {}", ep));
+                                    for ep in 1..self.episodes.1.len() + 1 {
+                                        self.messages.push(format!(
+                                            "Episode {}: {}",
+                                            ep,
+                                            self.episodes.0[ep - 1]
+                                        ));
                                     }
                                     ep_select = true;
                                 }
@@ -216,17 +233,23 @@ impl<'a> KamiApp for App {
                                     .nth(selected.unwrap())
                                     .unwrap()
                                     .replace("Episode ", "")
+                                    .split(":")
+                                    .collect::<Vec<&str>>()[0]
                                     .parse::<u64>()
                                     .unwrap();
-                                let link = get_anime_link(&self.link, self.ep);
+                                let link = get_episode_link(
+                                    &self.episodes.1[self.ep as usize - 1],
+                                    &self.provider,
+                                );
                                 if !self.cast.0 {
                                     open_video((
-                                        link,
+                                        link.0,
                                         format!("{} Episode {}", &self.title, self.ep),
+                                        link.1,
                                     ));
                                 } else {
                                     open_cast(
-                                        (link, format!("{} Episode {}", &self.title, self.ep)),
+                                        (link.0, format!("{} Episode {}", &self.title, self.ep)),
                                         &self.cast.1,
                                     )
                                 }
@@ -234,7 +257,7 @@ impl<'a> KamiApp for App {
                                 if self.ep > self.progress as u64 {
                                     if self.token == "local" || self.anime_id == 0 {
                                         write_an_progress(
-                                            (&self.title, &self.link, &image_url),
+                                            (&self.title, &self.anime_id.to_string(), &image_url),
                                             &self.ep,
                                         );
                                     } else {
@@ -244,7 +267,7 @@ impl<'a> KamiApp for App {
                                             self.token.as_str(),
                                         );
                                         write_an_progress(
-                                            (&self.title, &self.link, &image_url),
+                                            (&self.title, &self.anime_id.to_string(), &image_url),
                                             &self.ep,
                                         );
                                     }
@@ -257,7 +280,7 @@ impl<'a> KamiApp for App {
                     InputMode::Editing => match key.code {
                         KeyCode::Enter => {
                             //push self.input into self.messages with '
-                            self.animes = get_animes(self.input.drain(..).collect());
+                            self.animes = search_anime(self.input.drain(..).collect());
                             self.messages.items.clear();
                             for anime in &self.animes.1 {
                                 self.messages.push(anime.to_string());
