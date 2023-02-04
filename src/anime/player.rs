@@ -8,16 +8,28 @@ use rust_cast::{
 };
 use std::str::FromStr;
 
-pub fn open_video(link: (String, String)) {
-    let title = link.1;
-    let title = title.replace("-", " ");
-    let arg: String = format!("--force-media-title={}", title);
-    let _ = std::process::Command::new("mpv")
-        .arg(link.0)
-        .arg(arg)
-        .output()
-        .expect("failed to open mpv");
-
+pub fn open_video(link: (String, String, String)) {
+    if link.2 == "null" {
+        let title = link.1;
+        let title = title.replace("-", " ");
+        let arg: String = format!("--force-media-title={}", title);
+        let _ = std::process::Command::new("mpv")
+            .arg(link.0)
+            .arg(arg)
+            .output()
+            .expect("failed to open mpv");
+    } else {
+        let title = link.1;
+        let title = title.replace("-", " ");
+        let arg1: String = format!("--force-media-title={}", title);
+        let arg2: String = format!("--sub-files={}", link.2);
+        let _ = std::process::Command::new("mpv")
+            .arg(link.0)
+            .arg(arg1)
+            .arg(arg2)
+            .output()
+            .expect("failed to open mpv");
+    }
     // clear terminal
 }
 

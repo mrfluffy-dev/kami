@@ -1,13 +1,14 @@
 mod anime;
 mod helpers;
 mod ln;
+mod ui;
 
 use anime::anime::anime_ui;
 use colored::Colorize;
 //use ln::ui::ln_ui;
 use ln::ln::ln_ui;
 
-use crate::anime::{player::*, scraper::*, trackers::*};
+use crate::anime::trackers::*;
 use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
 fn main() {
@@ -17,7 +18,7 @@ fn main() {
     let mut chapter: u32 = 0;
     //let search = option string
     let mut count = 0;
-    let mut provider: String = "gogo".to_string();
+    let mut provider: String = "zoro".to_string();
     let mut reader: String = "bat".to_string();
     let mut cast = (false, "0".to_string());
     for arg in std::env::args() {
@@ -28,14 +29,14 @@ fn main() {
                 if let Some(arg) = std::env::args().nth(count + 1) {
                     //get the next argument and see if it is = to gogo of vrv
                     match arg.as_str() {
-                        "vrv" | "gogo" => {
+                        "zoro" | "gogo" => {
                             provider = arg;
                             count += 1;
                         }
                         &_ => provider = "gogo".to_string(),
                     }
                 } else {
-                    provider = "vrv".to_string();
+                    provider = "zoro".to_string();
                 }
             }
             "--reader" | "-R" => {
@@ -131,13 +132,13 @@ fn print_help() {
     );
     println!(
         "if no provider is entered it will default to {}",
-        "vrv".green()
+        "gogo".green()
     );
     println!(
         "if the -r argument is not used it will default to {}",
-        "gogo".green()
+        "zoro".green()
     );
-    println!("the providers are {} or {}", "gogo".green(), "vrv".green());
+    println!("the providers are {} or {}", "gogo".green(), "zoro".green());
     println!("");
     println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
     println!(
