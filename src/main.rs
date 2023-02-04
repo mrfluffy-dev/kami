@@ -48,14 +48,9 @@ fn main() {
                         }
                         &_ => reader = "bat".to_string(),
                     }
-
                 } else {
                     provider = "glow".to_string();
                 }
-
-            } else {
-                provider = "gogo".to_string();
-
             }
             "--cast" | "-C" => {
                 if let Some(arg) = std::env::args().nth(count + 1) {
@@ -142,7 +137,11 @@ fn print_help() {
         "if the -r argument is not used it will default to {}",
         "zoro".green()
     );
-    println!("the providers are {} or {}", "gogoanime".green(), "zoro".green());
+    println!(
+        "the providers are {} or {}",
+        "gogoanime".green(),
+        "zoro".green()
+    );
     println!("");
     println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
     println!(
