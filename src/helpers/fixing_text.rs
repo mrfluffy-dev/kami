@@ -59,3 +59,12 @@ pub fn fix_html_encoding(ln_text: &Vec<String>) -> Vec<String> {
     }
     ln_text_new
 }
+
+pub fn htmlise(query: String) -> String {
+    query
+        .replace(" ", "%20")
+        .replace(":", "%3A")
+        .replace("!", "%21")
+        .replace("?", "%3F")
+        .replace("'", "%27")
+}

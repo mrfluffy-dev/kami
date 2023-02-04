@@ -3,6 +3,9 @@ mod helpers;
 mod ln;
 mod ui;
 
+#[macro_use]
+extern crate lazy_static;
+
 use anime::anime::anime_ui;
 use colored::Colorize;
 //use ln::ui::ln_ui;
@@ -11,6 +14,7 @@ use ln::ln::ln_ui;
 use crate::anime::trackers::*;
 use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
+
 fn main() {
     let mut help = false;
     let mut anime = false;
