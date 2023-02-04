@@ -10,11 +10,22 @@ use crate::anime::trackers::*;
 use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
+
+#[derive(Subcommand, Debug)]
+enum KamiMode {
+    #[command(name = "ln", about = "Search Light Novel to read.")]
+    LightNovel,
+    #[command(about = "Search Anime to read.")]
+    Anime,
+}
 
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about = "A scraper to read light novels and watch anime in your terminal.", long_about = None)]
 struct Args {
+    #[command(subcommand)]
+    mode: Option<KamiMode>,
+
     /// Use anime mode
     #[arg(short, long)]
     anime: bool,
@@ -38,33 +49,32 @@ struct Args {
 }
 
 fn main() {
-    let mut args = Args::parse();
+    let args = Args::parse();
 
-    if args.anime == false && args.ln == false {
-        println!("1:    Anime");
-        println!("2:    Light Novel");
+    let mode = match &args.mode {
+        None => {
+            println!("1:    Anime");
+            println!("2:    Light Novel");
 
-        let a = int_input("pick your poison: ");
-        match a {
-            1 => args.anime = true,
-            2 => args.ln = true,
-            _ => println!("invalid option. "),
-        };
-    }
-    if args.anime == true && args.ln == true {
-        println!("you can only use one of the arguments at a time");
-        std::process::exit(0);
-    }
+            let opt = int_input("pick your poison: ");
 
-    if args.ln == true {
-        //ln_read(&search, chapter);
-        _ = ln_ui(args.chapter, args.reader);
-    } else if args.anime == true {
-        //anime_stream(search, episode, resume);
+            match opt {
+                1 => &KamiMode::Anime,
+                2 => &KamiMode::LightNovel,
+                _ => {
+                    println!("invalid option.");
+                    std::process::exit(0);
+                }
+            }
+        }
+        Some(m) => m,
+    };
 
-        let token = get_token();
-        _ = anime_ui(token, args.provider, (args.cast == "0", args.cast));
-    } else {
-        println!("Invalid argument");
-    }
+    let _ = match mode {
+        &KamiMode::LightNovel => ln_ui(args.chapter, args.reader),
+        &KamiMode::Anime => {
+            let token = get_token();
+            anime_ui(token, args.provider, (args.cast == "0", args.cast))
+        }
+    };
 }
