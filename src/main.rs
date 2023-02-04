@@ -11,6 +11,34 @@ use ln::ln::ln_ui;
 use crate::anime::{player::*, scraper::*, trackers::*};
 use crate::get_token;
 use crate::helpers::take_input::{int_input, string_input};
+
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Use anime mode
+    #[arg(short, long)]
+    anime: bool,
+    /// Use light novel mode
+    #[arg(short, long)]
+    ln: bool,
+
+    #[arg(short, long, default_value_t = 0)]
+    chapter: u32,
+
+    #[arg(short = 'C', long, default_value = "0")]
+    cast: String,
+
+    /// Provider for anime or light novel
+    #[arg(short = 'r', long, default_value = "gogo")]
+    provider: String,
+
+    /// Text renderer for light novel
+    #[arg(short = 'R', long, default_value = "bat")]
+    reader: String,
+}
+
 fn main() {
     let mut help = false;
     let mut anime = false;
