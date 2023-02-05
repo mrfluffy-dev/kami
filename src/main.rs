@@ -3,6 +3,9 @@ mod helpers;
 mod ln;
 mod ui;
 
+#[macro_use]
+extern crate lazy_static;
+
 use anime::anime::anime_ui;
 use ln::ln::ln_ui;
 
