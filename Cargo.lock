@@ -629,6 +629,7 @@ dependencies = [
  "crossterm 0.24.0",
  "dirs",
  "isahc",
+ "lazy_static",
  "regex",
  "rust_cast",
  "serde_json",
