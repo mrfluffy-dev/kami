@@ -110,25 +110,19 @@ fn main() {
 }
 
 fn print_help() {
-    println!("anime:\t\t{}", format_args!("{}", "-a --anime".red()));
+    println!("anime:\t\t{}\n", format_args!("{}", "-a --anime".red()));
     //print blank line
-    println!("");
     println!(
-        "cast:\t\t{}",
+        "cast:\t\t{}\n",
         format_args!("{} {}", "-C --cast".red(), "<IP Adress>".green())
     );
-    println!("");
-    println!("light novel:\t{}", format_args!("{}", "-l --ln".red()));
-    //print blank line
-    println!("");
-    println!("chapter:\t{}", format_args!("{}", "-c --chapter".red()));
+    println!("light novel:\t{}\n", format_args!("{}", "-l --ln".red()));
+    println!("chapter:\t{}\n", format_args!("{}", "-c --chapter".red()));
     println!(
         "{}",
         "after this^^^ argument you can enter a chapter number".green()
     );
-    println!("{}", "for exaple kami -c 200");
-    //print blank line
-    println!("");
+    println!("{}", "for exaple kami -c 200\n");
     println!("provider:\t{}", format_args!("{}", "-r --provider".red()));
     println!(
         "{}",
@@ -142,8 +136,11 @@ fn print_help() {
         "if the -r argument is not used it will default to {}",
         "zoro".green()
     );
-    println!("the providers are {} or {}", "gogo".green(), "zoro".green());
-    println!("");
+    println!(
+        "the providers are {} or {}\n",
+        "gogo".green(),
+        "zoro".green()
+    );
     println!("reader:\t\t{}", format_args!("{}", "-R --reader".red()));
     println!(
         "{}",
@@ -157,8 +154,7 @@ fn print_help() {
         "if the -R argument is not used it will default to {}",
         "bat".green()
     );
-    println!("the readers are {} or {}", "bat".green(), "glow".green());
-    println!("");
+    println!("the readers are {} or {}\n", "bat".green(), "glow".green());
     println!("help:\t\t{}", format_args!("{}", "-h --help".red()));
     //kill the program
     std::process::exit(0);
