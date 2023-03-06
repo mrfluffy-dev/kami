@@ -103,6 +103,24 @@ impl<'a> KamiApp for App {
             terminal.draw(|f| self.ui(f))?;
 
             if let Event::Key(key) = event::read()? {
+                fn match_anime_list(this: &mut App, selected: Option<usize>) {
+                    match selected {
+                        Some(0) => match this.animes.2.len() {
+                            0 => {
+                                _ = 0;
+                            }
+                            _ => {
+                                this.image = this.animes.2[selected.unwrap()].clone();
+                                this.change_image();
+                            }
+                        },
+                        Some(std::usize::MAX) => _ = 0,
+                        _ => {
+                            this.image = this.animes.2[selected.unwrap()].clone();
+                            this.change_image();
+                        }
+                    }
+                }
                 match self.input_mode {
                     InputMode::Normal => match key.code {
                         KeyCode::Char('i') => {
@@ -120,8 +138,7 @@ impl<'a> KamiApp for App {
                             false => {
                                 self.messages.next();
                                 let selected = self.messages.state.selected();
-                                self.image = self.animes.2[selected.unwrap()].clone();
-                                self.change_image();
+                                match_anime_list(self, selected);
                             }
                         },
                         KeyCode::Char('j') => match ep_select {
@@ -131,8 +148,7 @@ impl<'a> KamiApp for App {
                             false => {
                                 self.messages.next();
                                 let selected = self.messages.state.selected();
-                                self.image = self.animes.2[selected.unwrap()].clone();
-                                self.change_image();
+                                match_anime_list(self, selected)
                             }
                         },
                         KeyCode::Up => match ep_select {
@@ -142,8 +158,7 @@ impl<'a> KamiApp for App {
                             false => {
                                 self.messages.previous();
                                 let selected = self.messages.state.selected();
-                                self.image = self.animes.2[selected.unwrap()].clone();
-                                self.change_image();
+                                match_anime_list(self, selected)
                             }
                         },
                         KeyCode::Char('k') => match ep_select {
@@ -153,8 +168,7 @@ impl<'a> KamiApp for App {
                             false => {
                                 self.messages.previous();
                                 let selected = self.messages.state.selected();
-                                self.image = self.animes.2[selected.unwrap()].clone();
-                                self.change_image();
+                                match_anime_list(self, selected)
                             }
                         },
                         //if KeyCode::Enter => {
