@@ -22,7 +22,7 @@ pub fn get_anime_html(url: &str) -> String {
 pub fn get_post(id: &str) -> String {
     let resp = Request::builder()
         .method("POST")
-        .uri("https://yugen.to/api/embed/")
+        .uri("https://yugenanime.ro/api/embed/")
         .header("x-requested-with", "XMLHttpRequest")
         .body(id)
         .unwrap()
@@ -35,7 +35,7 @@ pub fn get_post(id: &str) -> String {
 
 pub fn get_animes(query: String) -> (Vec<String>, Vec<String>, Vec<String>) {
     let query = query.replace(" ", "+");
-    let html = get_anime_html(&format!("https://yugen.to/search/?q={}", query));
+    let html = get_anime_html(&format!("https://yugenanime.ro/discover/?q={}", query));
     let re = Regex::new(r#"href="(/anime[^"]*)""#).unwrap();
     let mut animes_links = Vec::new();
     for cap in re.captures_iter(&html) {
@@ -55,7 +55,7 @@ pub fn get_animes(query: String) -> (Vec<String>, Vec<String>, Vec<String>) {
 }
 
 pub fn get_anime_info(url: &str) -> (i32, u16) {
-    let url = format!("https://yugen.to{}watch", url);
+    let url = format!("https://yugenanime.ro{}watch", url);
     let html = get_anime_html(&url);
     //print html and exit
     let re = Regex::new(r#""mal_id":(\d*)"#).unwrap();
@@ -69,7 +69,7 @@ pub fn get_anime_info(url: &str) -> (i32, u16) {
 
 pub fn get_anime_link(url: &str, episode: u64) -> String {
     let url = &format!(
-        "https://yugen.to/watch{}{}/",
+        "https://yugenanime.ro/watch{}{}/",
         url.replace("/anime", ""),
         episode
     );
